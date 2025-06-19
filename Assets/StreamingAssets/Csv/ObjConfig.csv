@@ -1,0 +1,7 @@
+﻿Sign,Flow,Type,Name,SetUpLocationInformationSign,SetUpBehaviourName
+string,string,string,string,string,string
+标识,流程,类型,名称,创建绑定的位置信息,创建绑定行为名字
+Obj_Camera_Camera,StartSceneA,Camera,StartSceneACamera,,
+Obj_Global_Global,StartSceneA,Global,StartSceneAGlobal,,
+Obj_Event_SceneAUI,StartSceneA,Event,StartSceneAUIEvent,,StartSceneAUIEvent
+Obj_Event_UserInfo,StartSceneA,Event,用户信息,,用户信息

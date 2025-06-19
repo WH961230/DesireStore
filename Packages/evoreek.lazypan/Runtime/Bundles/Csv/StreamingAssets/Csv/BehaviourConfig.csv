@@ -1,0 +1,7 @@
+﻿Sign,Name,Description
+string,string,string
+标识,名字,描述
+Behaviour_Auto_FollowPlayer,FollowPlayer,FollowPlayer
+Behaviour_Input_PlayerMovement,PlayerMovement,PlayerMovement
+Behaviour_Event_SceneAUI,StartSceneAUIEvent,StartSceneAUIEvent
+Behaviour_Event_SceneBUI,BattleSceneBUIEvent,BattleSceneBUIEvent
