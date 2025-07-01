@@ -7,6 +7,7 @@ namespace LazyPan {
 		private Entity Obj_Camera_Camera;
 		private Entity Obj_Event_SceneAUI;
 		private Entity Obj_Event_UserInfo;
+		private Entity Obj_Event_MainInfo;
 
         public override void Init(Flow baseFlow) {
             base.Init(baseFlow);
@@ -15,13 +16,24 @@ namespace LazyPan {
 
 			Obj_Camera_Camera = Obj.Instance.LoadEntity("Obj_Camera_Camera");
 			Obj_Event_SceneAUI = Obj.Instance.LoadEntity("Obj_Event_SceneAUI");
-			Obj_Event_UserInfo = Obj.Instance.LoadEntity("Obj_Event_UserInfo");
 
         }
 
 		/*获取UI*/
 		public Comp GetUI() {
 			return UI_SceneA;
+		}
+
+		/*登录*/
+		public void Login() {
+			Obj.Instance.UnLoadEntity(Obj_Event_MainInfo);
+			Obj_Event_UserInfo = Obj.Instance.LoadEntity("Obj_Event_UserInfo");
+		}
+
+		/*主面板*/
+		public void Main() {
+			Obj.Instance.UnLoadEntity(Obj_Event_UserInfo);
+			Obj_Event_MainInfo = Obj.Instance.LoadEntity("Obj_Event_MainInfo");
 		}
 
 
@@ -33,6 +45,7 @@ namespace LazyPan {
 
         public override void Clear() {
             base.Clear();
+			Obj.Instance.UnLoadEntity(Obj_Event_MainInfo);
 			Obj.Instance.UnLoadEntity(Obj_Event_UserInfo);
 			Obj.Instance.UnLoadEntity(Obj_Event_SceneAUI);
 			Obj.Instance.UnLoadEntity(Obj_Camera_Camera);

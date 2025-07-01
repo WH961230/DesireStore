@@ -5,3 +5,4 @@ Obj_Camera_Camera,StartSceneA,Camera,StartSceneACamera,,
 Obj_Global_Global,StartSceneA,Global,StartSceneAGlobal,,
 Obj_Event_SceneAUI,StartSceneA,Event,StartSceneAUIEvent,,StartSceneAUIEvent
 Obj_Event_UserInfo,StartSceneA,Event,用户信息,,用户信息
+Obj_Event_MainInfo,StartSceneA,Event,主面板信息,,

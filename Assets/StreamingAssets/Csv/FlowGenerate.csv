@@ -4,7 +4,11 @@ string,string,string,string,string,string,string,string
 SceneA,StartSceneA,open_ui,流程预览生命周期创建界面选项,Init,Init,UI_SceneA,StartSceneAUI
 SceneA,StartSceneA,load_entity,流程预览生命周期创建选项,Init,Init,Obj_Camera_Camera|StartSceneA,StartSceneACamera
 SceneA,StartSceneA,load_entity,流程预览生命周期创建选项,Init,Init,Obj_Event_SceneAUI|StartSceneA,StartSceneAUIEvent
-SceneA,StartSceneA,load_entity,流程预览生命周期创建选项,Init,Init,Obj_Event_UserInfo|StartSceneA,用户信息
+SceneA,StartSceneA,unload_entity,流程预览生命周期销毁选项,Login,登录,Obj_Event_MainInfo|StartSceneA,主面板信息
+SceneA,StartSceneA,load_entity,流程预览生命周期创建选项,Login,登录,Obj_Event_UserInfo|StartSceneA,用户信息
+SceneA,StartSceneA,unload_entity,流程预览生命周期销毁选项,Main,主面板,Obj_Event_UserInfo|StartSceneA,用户信息
+SceneA,StartSceneA,load_entity,流程预览生命周期创建选项,Main,主面板,Obj_Event_MainInfo|StartSceneA,主面板信息
+SceneA,StartSceneA,unload_entity,流程预览生命周期销毁选项,Clear,Clear,Obj_Event_MainInfo|StartSceneA,主面板信息
 SceneA,StartSceneA,unload_entity,流程预览生命周期销毁选项,Clear,Clear,Obj_Event_UserInfo|StartSceneA,用户信息
 SceneA,StartSceneA,unload_entity,流程预览生命周期销毁选项,Clear,Clear,Obj_Event_SceneAUI|StartSceneA,StartSceneAUIEvent
 SceneA,StartSceneA,unload_entity,流程预览生命周期销毁选项,Clear,Clear,Obj_Camera_Camera|StartSceneA,StartSceneACamera

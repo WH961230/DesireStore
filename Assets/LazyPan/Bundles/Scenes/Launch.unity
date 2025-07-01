@@ -169,3 +169,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   OpenConsole: 0
   StageLoadScene: SceneA
+  UIDontDestroyRoot: {fileID: 0}
