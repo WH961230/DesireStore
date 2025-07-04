@@ -12,7 +12,7 @@ namespace LazyPan {
         public Behaviour_Event_UserInfo(Entity entity, string behaviourSign) : base(entity, behaviourSign) {
             Flo.Instance.GetFlow(out _流程);
             //加载
-            _用户数据 = SaveLoad.Instance.Load<用户数据>("UserData");
+            _用户数据 = SaveLoad.Instance.Load<用户数据>("用户数据");
             _创建用户组件 = Cond.Instance.Get<Comp>(_流程.GetUI(), "创建用户信息");
             
             //初始化
@@ -33,7 +33,7 @@ namespace LazyPan {
                 用户名 = Cond.Instance.Get<TMP_InputField>(创建用户组件, "昵称").text,
                 用户钱 = int.Parse(Cond.Instance.Get<TMP_InputField>(创建用户组件, "金钱").text)
             };
-            SaveLoad.Instance.Save("UserData", _用户数据);
+            SaveLoad.Instance.Save("用户数据", _用户数据);
             创建用户组件.gameObject.SetActive(false);
             _流程.Main();
         }
