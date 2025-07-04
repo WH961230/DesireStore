@@ -3,12 +3,12 @@ using System.Collections.Generic;
 
 namespace LazyPan {
     [Serializable]
-    public class NavigationData {
-        public List<Navigation> Navigation;//导航栏
+    public class 导航数据 {
+        public List<导航信息> 所有导航;//导航栏
     }
-    
+
     [Serializable]
-    public enum Navigation {
+    public enum 导航信息 {
         无,
         灵谋,
         修行,
