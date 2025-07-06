@@ -13,8 +13,10 @@ namespace LazyPan {
         private 导航数据 _导航数据;
         private 灵谋数据 _灵谋数据;
         private 修行数据 _修行数据;
+        private 蓄势数据 _蓄势数据;
         private 用户灵谋信息 _用户灵谋信息;
         private 用户修行信息 _用户修行信息;
+        private 用户蓄势信息 _用户蓄势信息;
 
         //组件
         private Comp _主面板数据组件;
@@ -32,6 +34,8 @@ namespace LazyPan {
         private 灵谋信息 _灵谋信息实例;
         private Comp _修行内容实例;
         private 修行信息 _修行信息实例;
+        private Comp _蓄势内容实例;
+        private 灵谋信息 _蓄势信息实例;
         private List<Comp> _导航栏按钮实例;
         private List<Comp> _子标题按钮示例;
 
@@ -176,6 +180,60 @@ namespace LazyPan {
             }
 
             SaveLoad.Instance.Save("修行数据", _修行数据);
+
+            #endregion
+
+            #region 蓄势数据
+
+            _蓄势数据 = SaveLoad.Instance.Load<蓄势数据>("蓄势数据");
+            if (_蓄势数据 == default) {
+                _蓄势数据 = new 蓄势数据() {
+                    用户蓄势信息数据 = new List<用户蓄势信息>()
+                };
+            }
+
+            存在用户 = false;
+            foreach (var tmp in _蓄势数据.用户蓄势信息数据) {
+                if (tmp.用户名 == _用户数据.用户名) {
+                    _用户蓄势信息 = tmp;
+                    存在用户 = true;
+                    break;
+                }
+            }
+
+            if (!存在用户) {
+                _用户蓄势信息 = new 用户蓄势信息() {
+                    用户名 = _用户数据.用户名,
+                    所有蓄势数据 = new List<蓄势信息>() {
+                        new 蓄势信息() {
+                            标题 = "蓄势任务一",
+                            内容 = $"我叫{_用户数据.用户名} 这是第一篇测试",
+                            完成 = true,
+                        },
+                        new 蓄势信息() {
+                            标题 = "蓄势任务二",
+                            内容 = $"我叫{_用户数据.用户名} 这是第二篇测试",
+                            完成 = false,
+                        },
+                    }
+                };
+
+                _蓄势数据.用户蓄势信息数据.Add(_用户蓄势信息);
+            }
+
+            SaveLoad.Instance.Save("蓄势数据", _蓄势数据);
+
+            #endregion
+
+            #region 琳琅数据
+
+            
+
+            #endregion
+
+            #region 博弈数据
+
+            
 
             #endregion
         }
