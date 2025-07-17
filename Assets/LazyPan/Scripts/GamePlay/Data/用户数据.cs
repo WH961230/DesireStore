@@ -6,11 +6,12 @@ namespace LazyPan {
         public string 用户名;//用户名
         public int 用户钱;//用户钱
         public int 用户欲望币;//用户欲望币
-        public 勋章 用户勋章;//用户勋章
+        public int 用户修为;//用户修为
+        public 境界 用户境界;//用户勋章
     }
 
     [Serializable]
-    public enum 勋章 {
+    public enum 境界 {
         无,
         勋章一,
         勋章二,
