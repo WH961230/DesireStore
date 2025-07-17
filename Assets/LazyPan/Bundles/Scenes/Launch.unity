@@ -133,6 +133,7 @@ GameObject:
   m_Component:
   - component: {fileID: 259785841}
   - component: {fileID: 259785842}
+  - component: {fileID: 259785843}
   m_Layer: 0
   m_Name: Launch
   m_TagString: Untagged
@@ -170,3 +171,18 @@ MonoBehaviour:
   OpenConsole: 0
   StageLoadScene: SceneA
   UIDontDestroyRoot: {fileID: 0}
+--- !u!114 &259785843
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 259785840}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6ab06420c6b7553479d0def8c97179be, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  width: 640
+  height: 360
+  fullscreen: 0
