@@ -4,8 +4,9 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
+
 namespace LazyPan {
-    public class Behaviour_Event_MainInfo : Behaviour {
+    public class Behaviour_Event_LinMou : Behaviour {
         //流程
         private Flow_SceneA _流程;
 
@@ -39,8 +40,8 @@ namespace LazyPan {
         private 蓄势信息 _蓄势信息实例;
         private List<Comp> _导航栏按钮实例;
         private List<Comp> _子标题按钮示例;
-
-        public Behaviour_Event_MainInfo(Entity entity, string behaviourSign) : base(entity, behaviourSign) {
+        
+        public Behaviour_Event_LinMou(Entity entity, string behaviourSign) : base(entity, behaviourSign) {
             Flo.Instance.GetFlow(out _流程);
             //加载
             _主面板数据组件 = Cond.Instance.Get<Comp>(_流程.GetUI(), "主面板信息");
@@ -69,11 +70,9 @@ namespace LazyPan {
             foreach (Transform tmp in 内容信息父物体.transform) {
                 GameObject.Destroy(tmp.gameObject);
             }
-            
+
             //延时加载
             ClockUtil.Instance.AlarmAfter(0.01f, DelayedExecute);
-            
-            _流程.LinMou();
         }
 
         private void 获取数据() {
@@ -236,31 +235,9 @@ namespace LazyPan {
             #endregion
         }
 
-        public override void DelayedExecute() {
-            //逻辑
-            用户信息();
-            //内容信息();
-        }
+        #region 生成一级导航栏
 
-        private void 用户信息() {
-            //数据赋值
-            Cond.Instance.Get<TextMeshProUGUI>(_用户信息组件, "昵称").text = _用户数据.用户名;
-            Cond.Instance.Get<TextMeshProUGUI>(_用户信息组件, "金钱").text = _用户数据.用户钱.ToString();
-            Cond.Instance.Get<TextMeshProUGUI>(_用户信息组件, "欲望币").text = _用户数据.用户欲望币.ToString();
-            Cond.Instance.Get<TextMeshProUGUI>(_用户信息组件, "勋章").text = _用户数据.用户境界.ToString();
-            //按钮
-            Button 返回登录按钮 = Cond.Instance.Get<Button>(_用户信息组件, "返回登录");
-            ButtonRegister.RemoveAllListener(返回登录按钮);
-            ButtonRegister.AddListener(返回登录按钮, () => { _流程.Login(); });
-        }
-
-        private void 内容信息() {
-            导航栏信息();
-        }
-
-        #region 导航
-
-        private void 导航栏信息() {
+        private void 生成一级导航栏() {
             //获取导航栏枚举数据
             List<导航信息> 导航栏 = _导航数据.所有导航;
             if (导航栏.Count > 0) {
@@ -297,6 +274,10 @@ namespace LazyPan {
             }
         }
 
+        #endregion
+        
+        #region 点击一级灵谋按钮
+
         private void 导航栏子标题(导航信息 导航信息, bool 包含待编辑 = false) {
             //预清除
             灵谋详细内容(null, false, true);
@@ -307,34 +288,14 @@ namespace LazyPan {
                     灵谋子标题(包含待编辑);
                     break;
                 case 导航信息.修行:
-                    修行子标题();
+                    _流程.XiuXing();
                     break;
                 case 导航信息.蓄势:
-                    蓄势子标题();
+                    _流程.XuShi();
                     break;
             }
         }
-
-        #endregion
-
-        #region 添加
-
-        private void 添加项目(导航信息 导航信息) {
-            switch (导航信息) {
-                case 导航信息.灵谋:
-                    添加灵谋();
-                    break;
-                case 导航信息.修行:
-                case 导航信息.蓄势:
-                    Debug.LogError(导航信息.ToString());
-                    break;
-            }
-        }
-
-        #endregion
-
-        #region 灵谋
-
+        
         private void 灵谋子标题(bool 包含待编辑) {
             _导航信息 = 导航信息.灵谋;
 
@@ -381,6 +342,10 @@ namespace LazyPan {
             }
         }
 
+        #endregion
+
+        #region 点击二级灵谋按钮
+
         private void 灵谋详细内容(灵谋日志 灵谋日志, bool 包含编辑 = false, bool deleteInstance = false) {
             //如果标题一致则不变 如果标题不一样直接替换 如果信息为空直接删除
             if (deleteInstance) {
@@ -419,6 +384,30 @@ namespace LazyPan {
             }
         }
 
+        #endregion
+
+        public override void DelayedExecute() {
+            生成一级导航栏();
+        }
+        
+        #region 数据处理 - 添加灵谋信息
+
+        private void 添加项目(导航信息 导航信息) {
+            switch (导航信息) {
+                case 导航信息.灵谋:
+                    添加灵谋();
+                    break;
+                case 导航信息.修行:
+                case 导航信息.蓄势:
+                    Debug.LogError(导航信息.ToString());
+                    break;
+            }
+        }
+
+        #endregion
+        
+        #region 灵谋
+
         private void 添加灵谋() {
             导航栏子标题(导航信息.灵谋, true);
         }
@@ -434,9 +423,9 @@ namespace LazyPan {
             _灵谋数据 = SaveLoad.Instance.Load<灵谋数据>("灵谋数据");
             导航栏子标题(导航信息.灵谋);
         }
-
+        
         #endregion
-
+        
         #region 修行
 
         private void 修行子标题() {

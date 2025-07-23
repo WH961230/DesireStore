@@ -1,71 +1,116 @@
-<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36" version="28.0.5">
-  <diagram name="第 1 页" id="jW2cXk7OruJiMYlbquKs">
-    <mxGraphModel dx="620" dy="509" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36" version="28.0.6">
+  <diagram name="第 1 页" id="mlWt9NrLiaWHTlWEI1Bq">
+    <mxGraphModel dx="1207" dy="822" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="v9Qafrgmw64wEHjfAZ3g-1" value="Launch" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="70" y="130" width="60" height="30" as="geometry" />
+        <mxCell id="8nHRbXpAo19kNerruzGr-1" value="Launch" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="20" y="20" width="60" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="oj2puQTgmrpuf9LcJ8WG-1" value="用户数据" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="314" y="20" width="100" height="30" as="geometry" />
+        <mxCell id="8nHRbXpAo19kNerruzGr-2" value="用户数据" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="280" y="100" width="100" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="oj2puQTgmrpuf9LcJ8WG-2" value="Flow_SceneA" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="170" y="130" width="100" height="30" as="geometry" />
+        <mxCell id="8nHRbXpAo19kNerruzGr-3" value="Flow_SceneA" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="130" y="20" width="100" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="oj2puQTgmrpuf9LcJ8WG-3" value="导航数据" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="314" y="60" width="100" height="30" as="geometry" />
+        <mxCell id="8nHRbXpAo19kNerruzGr-4" value="导航数据" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="430" y="180" width="100" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="oj2puQTgmrpuf9LcJ8WG-4" value="修行数据" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="314" y="130" width="100" height="30" as="geometry" />
+        <mxCell id="8nHRbXpAo19kNerruzGr-5" value="修行数据" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="280" y="180" width="100" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="oj2puQTgmrpuf9LcJ8WG-5" value="灵谋数据" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="314" y="170" width="100" height="30" as="geometry" />
+        <mxCell id="8nHRbXpAo19kNerruzGr-6" value="灵谋数据" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="280" y="140" width="100" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="oj2puQTgmrpuf9LcJ8WG-7" value="蓄势数据" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="314" y="210" width="100" height="30" as="geometry" />
+        <mxCell id="8nHRbXpAo19kNerruzGr-7" value="蓄势数据" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="280" y="220" width="100" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="oj2puQTgmrpuf9LcJ8WG-8" value="琳琅数据" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="314" y="250" width="100" height="30" as="geometry" />
+        <mxCell id="8nHRbXpAo19kNerruzGr-8" value="琳琅数据" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="280" y="260" width="100" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="oj2puQTgmrpuf9LcJ8WG-9" value="博弈数据" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="314" y="290" width="100" height="30" as="geometry" />
+        <mxCell id="8nHRbXpAo19kNerruzGr-9" value="博弈数据" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="280" y="300" width="100" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="oj2puQTgmrpuf9LcJ8WG-10" value="任务数据" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="460" y="130" width="100" height="30" as="geometry" />
+        <mxCell id="8nHRbXpAo19kNerruzGr-10" value="任务数据" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="130" y="480" width="100" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="oj2puQTgmrpuf9LcJ8WG-11" value="日志数据" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="460" y="170" width="100" height="30" as="geometry" />
+        <mxCell id="8nHRbXpAo19kNerruzGr-11" value="日志数据" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="130" y="520" width="100" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="oj2puQTgmrpuf9LcJ8WG-12" value="道具数据" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="460" y="210" width="100" height="30" as="geometry" />
+        <mxCell id="8nHRbXpAo19kNerruzGr-12" value="道具数据" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="130" y="560" width="100" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="oj2puQTgmrpuf9LcJ8WG-14" value="商品数据" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="460" y="250" width="100" height="30" as="geometry" />
+        <mxCell id="8nHRbXpAo19kNerruzGr-13" value="商品数据" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="130" y="600" width="100" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="oj2puQTgmrpuf9LcJ8WG-15" value="怪物数据" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="460" y="290" width="100" height="30" as="geometry" />
+        <mxCell id="8nHRbXpAo19kNerruzGr-14" value="怪物数据" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="130" y="640" width="100" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="oj2puQTgmrpuf9LcJ8WG-16" value="境界数据" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="460" y="20" width="100" height="30" as="geometry" />
+        <mxCell id="8nHRbXpAo19kNerruzGr-15" value="境界数据" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="130" y="370" width="100" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="oj2puQTgmrpuf9LcJ8WG-17" value="修为数据" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="460" y="60" width="100" height="30" as="geometry" />
+        <mxCell id="8nHRbXpAo19kNerruzGr-16" value="修为数据" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="130" y="410" width="100" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="oj2puQTgmrpuf9LcJ8WG-18" value="固定任务 自定义任务 随机任务" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
-          <mxGeometry x="620" y="130" width="60" height="30" as="geometry" />
+        <mxCell id="8nHRbXpAo19kNerruzGr-17" value="固定任务 自定义任务 随机任务" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="740" y="480" width="60" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="oj2puQTgmrpuf9LcJ8WG-20" value="思想 内核" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
-          <mxGeometry x="620" y="170" width="60" height="30" as="geometry" />
+        <mxCell id="8nHRbXpAo19kNerruzGr-18" value="思想 内核" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="740" y="520" width="60" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="oj2puQTgmrpuf9LcJ8WG-21" value="能力 技艺&amp;nbsp;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
-          <mxGeometry x="620" y="210" width="60" height="30" as="geometry" />
+        <mxCell id="8nHRbXpAo19kNerruzGr-19" value="能力 技艺&amp;nbsp;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="740" y="560" width="60" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="oj2puQTgmrpuf9LcJ8WG-22" value="器 工具 欲望" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
-          <mxGeometry x="620" y="250" width="60" height="30" as="geometry" />
+        <mxCell id="8nHRbXpAo19kNerruzGr-20" value="器 工具 欲望" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="740" y="600" width="60" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="oj2puQTgmrpuf9LcJ8WG-23" value="历练" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
-          <mxGeometry x="620" y="290" width="60" height="30" as="geometry" />
+        <mxCell id="8nHRbXpAo19kNerruzGr-21" value="历练" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="740" y="640" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="8nHRbXpAo19kNerruzGr-24" value="增删改查" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="430" y="220" width="100" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="8nHRbXpAo19kNerruzGr-25" value="Login 登录" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="130" y="60" width="100" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="8nHRbXpAo19kNerruzGr-33" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="8nHRbXpAo19kNerruzGr-26" target="8nHRbXpAo19kNerruzGr-2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="8nHRbXpAo19kNerruzGr-26" value="Main 主界面" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="130" y="100" width="100" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="8nHRbXpAo19kNerruzGr-34" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="8nHRbXpAo19kNerruzGr-28" target="8nHRbXpAo19kNerruzGr-6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="8nHRbXpAo19kNerruzGr-28" value="灵谋信息" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="130" y="140" width="100" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="8nHRbXpAo19kNerruzGr-35" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="8nHRbXpAo19kNerruzGr-29" target="8nHRbXpAo19kNerruzGr-5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="8nHRbXpAo19kNerruzGr-29" value="修行信息" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="130" y="180" width="100" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="8nHRbXpAo19kNerruzGr-36" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="8nHRbXpAo19kNerruzGr-30" target="8nHRbXpAo19kNerruzGr-7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="8nHRbXpAo19kNerruzGr-30" value="蓄势信息" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="130" y="220" width="100" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="8nHRbXpAo19kNerruzGr-37" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="8nHRbXpAo19kNerruzGr-31" target="8nHRbXpAo19kNerruzGr-8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="8nHRbXpAo19kNerruzGr-31" value="琳琅信息" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="130" y="260" width="100" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="8nHRbXpAo19kNerruzGr-38" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="8nHRbXpAo19kNerruzGr-32" target="8nHRbXpAo19kNerruzGr-9">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="8nHRbXpAo19kNerruzGr-32" value="博弈信息" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="130" y="300" width="100" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="8nHRbXpAo19kNerruzGr-39" value="Data" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="20" y="370" width="60" height="30" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>

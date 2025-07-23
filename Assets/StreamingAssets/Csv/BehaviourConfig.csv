@@ -4,3 +4,8 @@ string,string,string
 Behaviour_Event_SceneAUI,StartSceneAUIEvent,StartSceneAUIEvent
 Behaviour_Event_UserInfo,用户信息,用户信息,,,
 Behaviour_Event_MainInfo,主面板信息,主面板信息,,,
+Behaviour_Event_LinLang,琳琅信息,琳琅信息,,,
+Behaviour_Event_XuShi,蓄势信息,蓄势信息,,,
+Behaviour_Event_LinMou,灵谋信息,灵谋信息,,,
+Behaviour_Event_XiuXing,修行信息,修行信息,,,
+Behaviour_Event_BoYi,博弈信息,博弈信息,,,

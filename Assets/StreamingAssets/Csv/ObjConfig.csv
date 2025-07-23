@@ -6,3 +6,8 @@ Obj_Global_Global,StartSceneA,Global,StartSceneAGlobal,,
 Obj_Event_SceneAUI,StartSceneA,Event,StartSceneAUIEvent,,StartSceneAUIEvent
 Obj_Event_UserInfo,StartSceneA,Event,用户信息,,用户信息
 Obj_Event_MainInfo,StartSceneA,Event,主面板信息,,主面板信息
+Obj_Event_LinMou,StartSceneA,Event,灵谋信息,,灵谋信息
+Obj_Event_XiuXing,StartSceneA,Event,修行信息,,修行信息
+Obj_Event_LinLang,StartSceneA,Event,琳琅信息,,琳琅信息
+Obj_Event_XuShi,StartSceneA,Event,蓄势信息,,蓄势信息
+Obj_Event_BoYi,StartSceneA,Event,博弈信息,,博弈信息
