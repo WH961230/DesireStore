@@ -235,6 +235,22 @@ namespace LazyPan {
             #endregion
         }
 
+        #region 用户信息
+
+        private void 用户信息() {
+            //数据赋值
+            Cond.Instance.Get<TextMeshProUGUI>(_用户信息组件, "昵称").text = _用户数据.用户名;
+            Cond.Instance.Get<TextMeshProUGUI>(_用户信息组件, "金钱").text = _用户数据.用户钱.ToString();
+            Cond.Instance.Get<TextMeshProUGUI>(_用户信息组件, "欲望币").text = _用户数据.用户欲望币.ToString();
+            Cond.Instance.Get<TextMeshProUGUI>(_用户信息组件, "勋章").text = _用户数据.用户境界.ToString();
+            //按钮
+            Button 返回登录按钮 = Cond.Instance.Get<Button>(_用户信息组件, "返回登录");
+            ButtonRegister.RemoveAllListener(返回登录按钮);
+            ButtonRegister.AddListener(返回登录按钮, () => { _流程.Login(); });
+        }
+
+        #endregion
+
         #region 生成一级导航栏
 
         private void 生成一级导航栏() {
@@ -387,6 +403,7 @@ namespace LazyPan {
         #endregion
 
         public override void DelayedExecute() {
+            // 用户信息();
             生成一级导航栏();
         }
         

@@ -5,6 +5,9 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace LazyPan {
+    /// <summary>
+    /// 主面板信息 
+    /// </summary>
     public class Behaviour_Event_MainInfo : Behaviour {
         //流程
         private Flow_SceneA _流程;
@@ -42,36 +45,36 @@ namespace LazyPan {
 
         public Behaviour_Event_MainInfo(Entity entity, string behaviourSign) : base(entity, behaviourSign) {
             Flo.Instance.GetFlow(out _流程);
-            //加载
-            _主面板数据组件 = Cond.Instance.Get<Comp>(_流程.GetUI(), "主面板信息");
-            _用户信息组件 = Cond.Instance.Get<Comp>(_主面板数据组件, "用户信息");
-            _内容信息组件 = Cond.Instance.Get<Comp>(_主面板数据组件, "内容信息");
-            _内容父物体 = Cond.Instance.Get<Transform>(_内容信息组件, "内容父物体");
-            _模板库组件 = Cond.Instance.Get<Comp>(_内容信息组件, "模板库");
-            
-            //清理父物体残留物体
-            foreach (Transform tmp in _内容父物体) {
-                GameObject.Destroy(tmp.gameObject);
-            }
-            
-            获取数据();
-            
-            //初始化
-            _主面板数据组件.gameObject.SetActive(true);
-            _用户信息组件.gameObject.SetActive(true);
-            _内容信息组件.gameObject.SetActive(true);
-            _模板库组件.gameObject.SetActive(true);
-            
-            //清理完后挪进去
-            _详细信息组件 = GameObject.Instantiate(Cond.Instance.Get<Comp>(_内容信息组件, "详细信息"), _内容父物体);
-            _详细信息组件.gameObject.SetActive(true);
-            Transform 内容信息父物体 = Cond.Instance.Get<Transform>(_详细信息组件, "内容信息父物体");
-            foreach (Transform tmp in 内容信息父物体.transform) {
-                GameObject.Destroy(tmp.gameObject);
-            }
-            
-            //延时加载
-            ClockUtil.Instance.AlarmAfter(0.01f, DelayedExecute);
+            // //加载
+            // _主面板数据组件 = Cond.Instance.Get<Comp>(_流程.GetUI(), "主面板信息");
+            // _用户信息组件 = Cond.Instance.Get<Comp>(_主面板数据组件, "用户信息");
+            // _内容信息组件 = Cond.Instance.Get<Comp>(_主面板数据组件, "内容信息");
+            // _内容父物体 = Cond.Instance.Get<Transform>(_内容信息组件, "内容父物体");
+            // _模板库组件 = Cond.Instance.Get<Comp>(_内容信息组件, "模板库");
+            //
+            // //清理父物体残留物体
+            // foreach (Transform tmp in _内容父物体) {
+            //     GameObject.Destroy(tmp.gameObject);
+            // }
+            //
+            // 获取数据();
+            //
+            // //初始化
+            // _主面板数据组件.gameObject.SetActive(true);
+            // _用户信息组件.gameObject.SetActive(true);
+            // _内容信息组件.gameObject.SetActive(true);
+            // _模板库组件.gameObject.SetActive(true);
+            //
+            // //清理完后挪进去
+            // _详细信息组件 = GameObject.Instantiate(Cond.Instance.Get<Comp>(_内容信息组件, "详细信息"), _内容父物体);
+            // _详细信息组件.gameObject.SetActive(true);
+            // Transform 内容信息父物体 = Cond.Instance.Get<Transform>(_详细信息组件, "内容信息父物体");
+            // foreach (Transform tmp in 内容信息父物体.transform) {
+            //     GameObject.Destroy(tmp.gameObject);
+            // }
+            //
+            // //延时加载
+            // ClockUtil.Instance.AlarmAfter(0.01f, DelayedExecute);
             
             _流程.LinMou();
         }
@@ -238,7 +241,7 @@ namespace LazyPan {
 
         public override void DelayedExecute() {
             //逻辑
-            用户信息();
+            // 用户信息();
             //内容信息();
         }
 
@@ -599,11 +602,11 @@ namespace LazyPan {
 
         public override void Clear() {
             base.Clear();
-            _主面板数据组件.gameObject.SetActive(false);
-            _用户信息组件.gameObject.SetActive(false);
-            _内容信息组件.gameObject.SetActive(false);
-            _详细信息组件.gameObject.SetActive(false);
-            _模板库组件.gameObject.SetActive(false);
+            // _主面板数据组件.gameObject.SetActive(false);
+            // _用户信息组件.gameObject.SetActive(false);
+            // _内容信息组件.gameObject.SetActive(false);
+            // _详细信息组件.gameObject.SetActive(false);
+            // _模板库组件.gameObject.SetActive(false);
         }
     }
 }
