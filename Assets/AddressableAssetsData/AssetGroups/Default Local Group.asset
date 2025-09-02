@@ -15,7 +15,7 @@ MonoBehaviour:
   m_GroupName: Default Local Group
   m_Data:
     m_SerializedData: []
-  m_GUID: a6169015ac717ed4e995d7b645565c38
+  m_GUID: 7c561a43c231e1c48b222a1ba9fe6123
   m_SerializeEntries:
   - m_GUID: 7c35e4bd4d075be40b97bad778ec1d70
     m_Address: Packages/evoreek.lazypan/Runtime/Bundles/GameSetting/GameSetting.asset
@@ -57,7 +57,7 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 9d216a974c3845e48b49b259744100d5
+  - m_GUID: 46eb88cf463eb6547a0f1f2267c58442
     m_Address: Assets/LazyPan/Bundles/Configs/Input/LazyPanInputControl.inputactions
     m_ReadOnly: 0
     m_SerializedLabels: []
