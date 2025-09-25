@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using LazyPan;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -12,8 +13,27 @@ public class TaskManager : MonoBehaviour {
     [Header("UI References")] public Transform taskListContent; // ScrollView Content
     public GameObject taskItemPrefab;
 
+    public Button _taskAdd;
+    public Comp _taskCreator;
+
     private void Awake() {
         if (Instance == null) Instance = this;
+        
+        _taskAdd.onClick.AddListener(() => {
+            _taskCreator.gameObject.SetActive(true);
+            TMP_InputField title = Cond.Instance.Get<TMP_InputField>(_taskCreator, "标题"); 
+            title.text = "";
+            TMP_InputField describe = Cond.Instance.Get<TMP_InputField>(_taskCreator, "描述");
+            describe.text = "";
+            TMP_InputField type = Cond.Instance.Get<TMP_InputField>(_taskCreator, "类型");
+            type.text = "";
+            TMP_InputField reward = Cond.Instance.Get<TMP_InputField>(_taskCreator, "奖励");
+            reward.text = "";
+            _taskAdd.onClick.AddListener(() => {
+                CreateTask(title.text, describe.text, int.Parse(reward.text));
+                _taskCreator.gameObject.SetActive(false);
+            });
+        });
     }
 
     // 创建任务
