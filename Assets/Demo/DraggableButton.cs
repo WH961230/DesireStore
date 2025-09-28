@@ -44,9 +44,6 @@ public class DraggableButton : MonoBehaviour,
         canvasRect = canvas.GetComponent<RectTransform>();
         button = GetComponent<Button>();
         originalScale = rectTransform.localScale;
-
-        if (MainPanel != null)
-            MainPanel.SetActive(false);
     }
 
     public void OnPointerDown(PointerEventData eventData) {
