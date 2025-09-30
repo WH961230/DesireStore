@@ -29,7 +29,9 @@ public class TaskManager : MonoBehaviour {
             type.text = "";
             TMP_InputField reward = Cond.Instance.Get<TMP_InputField>(_taskCreator, "奖励");
             reward.text = "";
-            _taskAdd.onClick.AddListener(() => {
+            Button add = Cond.Instance.Get<Button>(_taskCreator, "创建");
+            add.onClick.RemoveAllListeners();
+            add.onClick.AddListener(() => {
                 CreateTask(title.text, describe.text, int.Parse(reward.text));
                 _taskCreator.gameObject.SetActive(false);
             });
@@ -46,6 +48,7 @@ public class TaskManager : MonoBehaviour {
             isCompleted = false
         };
         tasks.Add(newTask);
+        DisplayUI();
     }
 
     // 完成任务
@@ -68,6 +71,7 @@ public class TaskManager : MonoBehaviour {
             Destroy(child.gameObject);
         }
 
+        int count = 0;
         foreach (var task in tasks) {
             if (task.isCompleted) {
                 continue;
@@ -90,6 +94,12 @@ public class TaskManager : MonoBehaviour {
                     DeleteTask(task.id);
                     DisplayUI();
                 });
+
+            count++;
         }
+
+        Vector2 sizeDelta = taskListContent.GetComponent<RectTransform>().sizeDelta;
+        sizeDelta = new Vector2(sizeDelta.x, 300 * count);
+        taskListContent.GetComponent<RectTransform>().sizeDelta = sizeDelta;
     }
 }
