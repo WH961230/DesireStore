@@ -3,11 +3,12 @@ using System.Collections.Generic;
 [System.Serializable]
 public class Task {
     public int id;
-    public string title;
-    public string type;
-    public string description;
-    public bool isCompleted;
-    public int reward;
+    public string title;//标题
+    public string type;//类型
+    public string description;//描述
+    public string remark;//备注
+    public bool isCompleted;//是否完成
+    public int reward;//奖励
 }
 
 [System.Serializable]

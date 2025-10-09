@@ -70,6 +70,14 @@ public class TaskManager : MonoBehaviour {
         }
     }
 
+    public void ChangeTaskRemark(int id, string remark) {
+        Task t = _taskData.tasks.Find(x => x.id == id);
+        if (t != null) {
+            t.remark = remark;
+            SaveLoad.Instance.Save(TASKDATAFILENAME, _taskData);
+        }
+    }
+
     // 删除任务
     public void DeleteTask(int id) {
         _taskData.tasks.RemoveAll(x => x.id == id);
@@ -91,6 +99,13 @@ public class TaskManager : MonoBehaviour {
             
             obj.transform.Find("TitleText").GetComponent<TextMeshProUGUI>().text = string.Concat("任务:", task.title);
             obj.transform.Find("DescriptionText").GetComponent<TextMeshProUGUI>().text = string.Concat("描述:", task.description);
+            //备注
+            TMP_InputField remark = obj.transform.Find("Remark").GetComponent<TMP_InputField>();
+            remark.text = task.remark;
+            remark.onEndEdit.RemoveAllListeners();
+            remark.onEndEdit.AddListener((value) => {
+                ChangeTaskRemark(task.id, value);
+            });
             obj.transform.Find("RewardText").GetComponent<TextMeshProUGUI>().text = string.Concat("奖励:", task.reward.ToString());
             
             Button completeBtn = obj.transform.Find("CompleteButton").GetComponent<Button>();
