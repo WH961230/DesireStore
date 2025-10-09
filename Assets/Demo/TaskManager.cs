@@ -7,8 +7,8 @@ using UnityEngine.UI;
 public class TaskManager : MonoBehaviour {
     public static TaskManager Instance;
 
-    public List<Task> tasks = new List<Task>();
-    private int nextId = 1;
+    public const string TASKDATAFILENAME = "任务信息";
+    public TaskData _taskData;
 
     [Header("UI References")] public Transform taskListContent; // ScrollView Content
     public GameObject taskItemPrefab;
@@ -18,6 +18,14 @@ public class TaskManager : MonoBehaviour {
 
     private void Awake() {
         if (Instance == null) Instance = this;
+        
+        //初始化用户信息
+        _taskData = SaveLoad.Instance.Load<TaskData>(TASKDATAFILENAME);
+        if (_taskData == default) {
+            _taskData = new TaskData();
+            _taskData.tasks = new List<Task>();
+            SaveLoad.Instance.Save(TASKDATAFILENAME, _taskData);
+        }
         
         _taskAdd.onClick.AddListener(() => {
             _taskCreator.gameObject.SetActive(true);
@@ -41,29 +49,31 @@ public class TaskManager : MonoBehaviour {
     // 创建任务
     public void CreateTask(string title, string description, int reward) {
         Task newTask = new Task {
-            id = nextId++,
+            id = ++_taskData.nextTaskIndex,
             title = title,
             description = description,
             reward = reward,
             isCompleted = false
         };
-        tasks.Add(newTask);
+        _taskData.tasks.Add(newTask);
+        SaveLoad.Instance.Save(TASKDATAFILENAME, _taskData);
         DisplayUI();
     }
 
     // 完成任务
     public void CompleteTask(int id) {
-        Task t = tasks.Find(x => x.id == id);
+        Task t = _taskData.tasks.Find(x => x.id == id);
         if (t != null && !t.isCompleted) {
             t.isCompleted = true;
             UserManager.Instance.AddCoins(t.reward);
-            Debug.Log("Task Completed: " + t.title);
+            SaveLoad.Instance.Save(TASKDATAFILENAME, _taskData);
         }
     }
 
     // 删除任务
     public void DeleteTask(int id) {
-        tasks.RemoveAll(x => x.id == id);
+        _taskData.tasks.RemoveAll(x => x.id == id);
+        SaveLoad.Instance.Save(TASKDATAFILENAME, _taskData);
     }
 
     public void DisplayUI() {
@@ -72,16 +82,16 @@ public class TaskManager : MonoBehaviour {
         }
 
         int count = 0;
-        foreach (var task in tasks) {
+        foreach (var task in _taskData.tasks) {
             if (task.isCompleted) {
                 continue;
             }
 
             GameObject obj = Instantiate(taskItemPrefab, taskListContent);
             
-            obj.transform.Find("TitleText").GetComponent<TextMeshProUGUI>().text = task.title;
-            obj.transform.Find("DescriptionText").GetComponent<TextMeshProUGUI>().text = task.description;
-            obj.transform.Find("RewardText").GetComponent<TextMeshProUGUI>().text = task.reward.ToString();
+            obj.transform.Find("TitleText").GetComponent<TextMeshProUGUI>().text = string.Concat("任务:", task.title);
+            obj.transform.Find("DescriptionText").GetComponent<TextMeshProUGUI>().text = string.Concat("描述:", task.description);
+            obj.transform.Find("RewardText").GetComponent<TextMeshProUGUI>().text = string.Concat("奖励:", task.reward.ToString());
             
             Button completeBtn = obj.transform.Find("CompleteButton").GetComponent<Button>();
             completeBtn.onClick.AddListener(() => {

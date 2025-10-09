@@ -7,8 +7,9 @@ using UnityEngine.UI;
 public class ShopManager : MonoBehaviour {
     public static ShopManager Instance;
 
-    public List<Item> items = new List<Item>();
-    private int nextId = 1;
+    public const string SHOPDATAFILENAME = "商品信息";
+
+    public ItemData _itemData;
 
     [Header("UI References")] public Transform itemListContent;
     public GameObject itemPrefab;
@@ -18,6 +19,14 @@ public class ShopManager : MonoBehaviour {
     
     private void Awake() {
         if (Instance == null) Instance = this;
+        
+        //初始化用户信息
+        _itemData = SaveLoad.Instance.Load<ItemData>(SHOPDATAFILENAME);
+        if (_itemData == default) {
+            _itemData = new ItemData();
+            _itemData.item = new List<Item>();
+            SaveLoad.Instance.Save(SHOPDATAFILENAME, _itemData);
+        }
         
         _shopAdd.onClick.AddListener(() => {
             _shopCreator.gameObject.SetActive(true);
@@ -37,25 +46,19 @@ public class ShopManager : MonoBehaviour {
     // 创建任务
     public void CreateShop(string name, int price) {
         Item newTask = new Item {
-            id = nextId++,
+            id = ++_itemData.nextItemIndex,
             name = name,
             isOwned = false,
             price = price,
         };
-        items.Add(newTask);
+        _itemData.item.Add(newTask);
+        SaveLoad.Instance.Save(SHOPDATAFILENAME, _itemData);
         DisplayUI();
-    }
-
-    // 显示商店（测试时用 Debug.Log）
-    public void ShowShop() {
-        foreach (var item in items) {
-            Debug.Log(item.id + ": " + item.name + " Price: " + item.price);
-        }
     }
 
     // 购买商品
     public void BuyItem(int id) {
-        Item item = items.Find(x => x.id == id);
+        Item item = _itemData.item.Find(x => x.id == id);
         if (item != null) {
             if (UserManager.Instance.SpendCoins(item.price)) {
                 item.isOwned = true;
@@ -72,14 +75,14 @@ public class ShopManager : MonoBehaviour {
         }
 
         int count = 0;
-        foreach (var item in items) {
+        foreach (var item in _itemData.item) {
             if (item.isOwned) {
                 continue;
             }
             GameObject obj = Instantiate(itemPrefab, itemListContent);
 
-            obj.transform.Find("NameText").GetComponent<TextMeshProUGUI>().text = item.name;
-            obj.transform.Find("PriceText").GetComponent<TextMeshProUGUI>().text = item.price.ToString();
+            obj.transform.Find("NameText").GetComponent<TextMeshProUGUI>().text = string.Concat("商品名:", item.name);
+            obj.transform.Find("PriceText").GetComponent<TextMeshProUGUI>().text = string.Concat("价格:", item.price.ToString());
 
             Button buyBtn = obj.transform.Find("BuyButton").GetComponent<Button>();
             buyBtn.onClick.RemoveAllListeners();
@@ -89,7 +92,7 @@ public class ShopManager : MonoBehaviour {
             });
             
             // 如果钱不够，禁用按钮
-            if (UserManager.Instance.coins < item.price) {
+            if (UserManager.Instance._userData.coin < item.price) {
                 buyBtn.interactable = false;
             }
 

@@ -181,7 +181,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\u589E\u52A0"
+  m_text: "\u6DFB\u52A0\u4EFB\u52A1"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 70e6b558c8739e944adc890956be5281, type: 2}
   m_sharedMaterial: {fileID: 404895919662102789, guid: 70e6b558c8739e944adc890956be5281, type: 2}
@@ -483,7 +483,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 1}
+  m_Color: {r: 0, g: 0, b: 0, a: 0.33333334}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1003,7 +1003,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.3207547, g: 0.3207547, b: 0.3207547, a: 0.392}
+  m_Color: {r: 0, g: 0, b: 0, a: 0.392}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -2894,7 +2894,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.20392157}
+  m_Color: {r: 0, g: 0, b: 0, a: 0.20392157}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -7208,7 +7208,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.3207547, g: 0.3207547, b: 0.3207547, a: 0.392}
+  m_Color: {r: 0, g: 0, b: 0, a: 0.392}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -7549,7 +7549,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.12855999, g: 0.254717, b: 0.13685185, a: 1}
+  m_Color: {r: 0.5283019, g: 0.5283019, b: 0.5283019, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -9341,9 +9341,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 69f94e7c1a112564d9426aeef5b82367, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tasks: []
+  _taskData:
+    nextTaskIndex: 0
+    tasks: []
   taskListContent: {fileID: 1042484381}
-  taskItemPrefab: {fileID: 8050980415284208856, guid: 5468925e2e61de84f85f6a74fc7ba821, type: 3}
+  taskItemPrefab: {fileID: 42243936062605287, guid: 5468925e2e61de84f85f6a74fc7ba821, type: 3}
   _taskAdd: {fileID: 943326790}
   _taskCreator: {fileID: 1716273436}
 --- !u!114 &1643512412
@@ -9358,9 +9360,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ec3d9e65bd5c896428d718e542e66cae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  items: []
+  _itemData:
+    nextItemIndex: 0
+    item: []
   itemListContent: {fileID: 1928519455}
-  itemPrefab: {fileID: 3163711376614578095, guid: dcb68d92ef85fa04794b6d2c0babe204, type: 3}
+  itemPrefab: {fileID: 9158714062902636592, guid: dcb68d92ef85fa04794b6d2c0babe204, type: 3}
   _shopAdd: {fileID: 24255242}
   _shopCreator: {fileID: 868840245}
 --- !u!114 &1643512413
@@ -9375,8 +9379,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a8ee90b93280f314ab79cf73807eb637, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  userName: Evoreek
-  coins: 0
+  _userData:
+    name: 
+    coin: 0
   userNameText: {fileID: 1234782705}
   coinsText: {fileID: 1722106436}
 --- !u!4 &1643512414
