@@ -62,6 +62,8 @@ public class ShopManager : MonoBehaviour {
         if (item != null) {
             if (UserManager.Instance.SpendCoins(item.price)) {
                 item.isOwned = true;
+                SaveLoad.Instance.Save(SHOPDATAFILENAME, _itemData);
+                BackpackManager.Instance.Get(item);
                 Debug.Log("Purchased: " + item.name);
             } else {
                 Debug.Log("Not enough coins!");
