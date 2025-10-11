@@ -91,16 +91,17 @@ public class TaskManager : MonoBehaviour {
 
         int count = 0;
         foreach (var task in _taskData.tasks) {
-            if (task.isCompleted) {
-                continue;
-            }
-
             GameObject obj = Instantiate(taskItemPrefab, taskListContent);
-            
+            if (task.isCompleted) {
+                obj.transform.SetAsLastSibling();
+            } else {
+                obj.transform.SetAsFirstSibling();
+            }
             obj.transform.Find("TitleText").GetComponent<TextMeshProUGUI>().text = string.Concat("任务:", task.title);
             obj.transform.Find("DescriptionText").GetComponent<TextMeshProUGUI>().text = string.Concat("描述:", task.description);
             //备注
             TMP_InputField remark = obj.transform.Find("Remark").GetComponent<TMP_InputField>();
+            remark.gameObject.SetActive(!task.isCompleted);
             remark.text = task.remark;
             remark.onEndEdit.RemoveAllListeners();
             remark.onEndEdit.AddListener((value) => {
@@ -109,13 +110,15 @@ public class TaskManager : MonoBehaviour {
             obj.transform.Find("RewardText").GetComponent<TextMeshProUGUI>().text = string.Concat("奖励:", task.reward.ToString());
             
             Button completeBtn = obj.transform.Find("CompleteButton").GetComponent<Button>();
+            completeBtn.gameObject.SetActive(!task.isCompleted);
             completeBtn.onClick.AddListener(() => {
                 CompleteTask(task.id);
                 DisplayUI(); // 完成后刷新界面
             });
             
-            obj.transform.Find("DeleteButton").GetComponent<Button>()
-                .onClick.AddListener(() => {
+            Button deleteButton = obj.transform.Find("DeleteButton").GetComponent<Button>();
+            deleteButton.gameObject.SetActive(!task.isCompleted);
+            deleteButton.onClick.AddListener(() => {
                     DeleteTask(task.id);
                     DisplayUI();
                 });
@@ -124,7 +127,7 @@ public class TaskManager : MonoBehaviour {
         }
 
         Vector2 sizeDelta = taskListContent.GetComponent<RectTransform>().sizeDelta;
-        sizeDelta = new Vector2(sizeDelta.x, 300 * count);
+        sizeDelta = new Vector2(sizeDelta.x, 320 * count);
         taskListContent.GetComponent<RectTransform>().sizeDelta = sizeDelta;
     }
 }

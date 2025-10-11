@@ -102,7 +102,7 @@ public class ShopManager : MonoBehaviour {
         }
 
         Vector2 sizeDelta = itemListContent.GetComponent<RectTransform>().sizeDelta;
-        sizeDelta = new Vector2(sizeDelta.x, 300 * count);
+        sizeDelta = new Vector2(sizeDelta.x, 320 * count);
         itemListContent.GetComponent<RectTransform>().sizeDelta = sizeDelta;
     }
 }
