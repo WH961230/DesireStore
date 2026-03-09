@@ -15,13 +15,21 @@ MonoBehaviour:
   AchievementDatas:
   - AchievementTitle: "\u72EC\u7ACB\u6E38\u620F\u65C5\u884C\u5BB6"
     AchievementContent: "\u72EC\u7ACB\u6E38\u620F\u65C5\u884C\u5BB6"
-    TaskDatas: []
+    IsAchievementFinished: 0
+    RewardInteractPoint: 0
+    TaskDatas:
+    - TaskTitle: "\u6D4B\u8BD5\u72EC\u7ACB\u6E38\u620F\u4EFB\u52A11"
+      TaskContent: "\u6D4B\u8BD5\u72EC\u7ACB\u6E38\u620F\u4EFB\u52A11"
+      RewardInteractPoint: 111
+      IsTaskFinished: 0
   - AchievementTitle: "\u671D\u5357\u4E66\u623F\u9662\u957F"
     AchievementContent: "\u671D\u5357\u4E66\u623F\u9662\u957F"
+    IsAchievementFinished: 0
+    RewardInteractPoint: 0
     TaskDatas:
     - TaskTitle: "\u671D\u5357\u4E66\u623F\u5EFA\u9020 - \u4EFB\u52A1\u6A21\u5757"
-      TaskContent: "\u671D\u5357\u4E66\u623F\u5EFA\u9020 - \u4EFB\u52A1\u6A21\u5757"
-      RewardInteractPoint: 2000
+      TaskContent: "\u671D\u5357\u4E66\u623F\u5EFA\u9020 - \u53EF\u5B8C\u6210\u6267\u884C\u548C\u5956\u52B1\u4EFB\u52A1\u6A21\u5757"
+      RewardInteractPoint: 500
       IsTaskFinished: 1
     - TaskTitle: "\u671D\u5357\u4E66\u623F\u5EFA\u9020 - \u5546\u5E97\u6A21\u5757"
       TaskContent: "\u671D\u5357\u4E66\u623F\u5EFA\u9020 - \u5546\u5E97\u6A21\u5757"

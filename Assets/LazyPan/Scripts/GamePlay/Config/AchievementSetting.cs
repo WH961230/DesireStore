@@ -12,6 +12,8 @@ namespace LazyPan {
     public class AchievementData {
         public string AchievementTitle;
         public string AchievementContent;
+        public bool IsAchievementFinished;
+        public int RewardInteractPoint;
         public List<TaskData> TaskDatas = new List<TaskData>();
     }
 
