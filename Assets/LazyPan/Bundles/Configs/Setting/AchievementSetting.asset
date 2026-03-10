@@ -17,33 +17,38 @@ MonoBehaviour:
     AchievementContent: "\u72EC\u7ACB\u6E38\u620F\u65C5\u884C\u5BB6"
     IsAchievementFinished: 0
     RewardInteractPoint: 0
-    TaskDatas:
-    - TaskTitle: "\u6D4B\u8BD5\u72EC\u7ACB\u6E38\u620F\u4EFB\u52A11"
-      TaskContent: "\u6D4B\u8BD5\u72EC\u7ACB\u6E38\u620F\u4EFB\u52A11"
-      RewardInteractPoint: 111
-      IsTaskFinished: 0
-  - AchievementTitle: "\u671D\u5357\u4E66\u623F\u9662\u957F"
-    AchievementContent: "\u671D\u5357\u4E66\u623F\u9662\u957F"
+    TaskDatas: []
+  - AchievementTitle: "\u4FEE\u884C\u624B\u518C\u521B\u59CB\u4EBA"
+    AchievementContent: "\u4FEE\u884C\u624B\u518C\u521B\u59CB\u4EBA"
     IsAchievementFinished: 0
-    RewardInteractPoint: 0
+    RewardInteractPoint: 9999
     TaskDatas:
-    - TaskTitle: "\u671D\u5357\u4E66\u623F\u5EFA\u9020 - \u4EFB\u52A1\u6A21\u5757"
-      TaskContent: "\u671D\u5357\u4E66\u623F\u5EFA\u9020 - \u53EF\u5B8C\u6210\u6267\u884C\u548C\u5956\u52B1\u4EFB\u52A1\u6A21\u5757"
+    - TaskContent: "\u5B8C\u6210\u6211\u6A21\u5757"
+      TaskTitle: "\u6211\u6A21\u5757"
+      RewardInteractPoint: 2000
+      IsTaskFinished: 1
+    - TaskContent: "\u5B8C\u6210\u6267\u884C\u548C\u5956\u52B1\u4EFB\u52A1\u6A21\u5757"
+      TaskTitle: "\u4EFB\u52A1\u6A21\u5757"
       RewardInteractPoint: 500
       IsTaskFinished: 1
-    - TaskTitle: "\u671D\u5357\u4E66\u623F\u5EFA\u9020 - \u5546\u5E97\u6A21\u5757"
-      TaskContent: "\u671D\u5357\u4E66\u623F\u5EFA\u9020 - \u5546\u5E97\u6A21\u5757"
-      RewardInteractPoint: 2000
+    - TaskContent: "\u521B\u5EFA\u4EFB\u52A1\u6A21\u5757"
+      TaskTitle: "\u4EFB\u52A1\u6A21\u5757"
+      RewardInteractPoint: 500
       IsTaskFinished: 0
-    - TaskTitle: "\u671D\u5357\u4E66\u623F\u5EFA\u9020 - \u6210\u5C31\u6A21\u5757"
-      TaskContent: "\u671D\u5357\u4E66\u623F\u5EFA\u9020 - \u6210\u5C31\u6A21\u5757"
-      RewardInteractPoint: 2000
+    - TaskContent: "\u4FEE\u6539\u4EFB\u52A1\u6A21\u5757"
+      TaskTitle: "\u4EFB\u52A1\u6A21\u5757"
+      RewardInteractPoint: 500
       IsTaskFinished: 0
-    - TaskTitle: "\u671D\u5357\u4E66\u623F\u5EFA\u9020 - \u8D44\u4EA7\u6A21\u5757"
-      TaskContent: "\u671D\u5357\u4E66\u623F\u5EFA\u9020 - \u8D44\u4EA7\u6A21\u5757"
-      RewardInteractPoint: 2000
+  - AchievementTitle: "\u6253\u5DE5\u6548\u7387\u90E8\u90E8\u957F"
+    AchievementContent: "\u7D2F\u8BA1\u6253\u5DE5\u83B7\u5F9799999\u4EA4\u4E92\u70B9"
+    IsAchievementFinished: 0
+    RewardInteractPoint: 9999
+    TaskDatas:
+    - TaskContent: "\u52A8\u5230\u7684"
+      TaskTitle: "\u554A\u554A\u554A"
+      RewardInteractPoint: 111
       IsTaskFinished: 0
-    - TaskTitle: "\u671D\u5357\u4E66\u623F\u5EFA\u9020 - \u6211\u6A21\u5757"
-      TaskContent: "\u671D\u5357\u4E66\u623F\u5EFA\u9020 - \u6211\u6A21\u5757"
-      RewardInteractPoint: 2000
+    - TaskContent: "CURSOR\u7814\u7A76"
+      TaskTitle: "CURSOR\u7814\u7A76"
+      RewardInteractPoint: 1000
       IsTaskFinished: 1

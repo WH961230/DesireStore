@@ -19,8 +19,8 @@ namespace LazyPan {
 
     [Serializable]
     public class TaskData {
-        public string TaskTitle;
         public string TaskContent;
+        public string TaskTitle;
         public int RewardInteractPoint;
         public bool IsTaskFinished;
     }
