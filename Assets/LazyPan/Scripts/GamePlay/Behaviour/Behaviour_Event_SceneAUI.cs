@@ -1,18 +1,25 @@
 using System;
+using System.IO;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 namespace LazyPan {
     public class Behaviour_Event_SceneAUI : Behaviour {
         private Button _createTaskBtn;
         private Button _cancelCreateTaskBtn;
+        private PlayerSaveV1 _save;
+        private bool _profileBindingsInitialized;
+        private bool _meProfileBindingsInitialized;
 
         public Behaviour_Event_SceneAUI(Entity entity, string behaviourSign) : base(entity, behaviourSign) {
             InitUI();
         }
 
         private void InitUI() {
+            _save = PlayerSaveStore.LoadOrCreate();
+
             // 获取场景A的流程实例
             Flo.Instance.GetFlow(out Flow_SceneA flow);
             // 获取界面组件
@@ -41,8 +48,8 @@ namespace LazyPan {
             // 获取返回主页按钮
             Button backToHomeBtn = Cond.Instance.Get<Button>(statusBar, "返回主页");
             // 任务页相关按钮（可能在部分UI版本中不存在）
-            _createTaskBtn = TryGetButton(statusBar, "创建任务");
-            _cancelCreateTaskBtn = TryGetButton(statusBar, "取消创建任务");
+            _createTaskBtn = Cond.Instance.Get<Button>(statusBar, "创建任务");
+            _cancelCreateTaskBtn = Cond.Instance.Get<Button>(statusBar, "取消创建任务");
 
             if (_createTaskBtn != null) {
                 _createTaskBtn.gameObject.SetActive(false);
@@ -61,6 +68,8 @@ namespace LazyPan {
                 // 更新标题为当前页面中文名称
                 titleText.text = "我";
                 backToHomeBtn.gameObject.SetActive(true);
+
+                RefreshMe(meModule);
 
                 if (_createTaskBtn != null) {
                     _createTaskBtn.gameObject.SetActive(false);
@@ -132,9 +141,13 @@ namespace LazyPan {
                 if (_cancelCreateTaskBtn != null) {
                     _cancelCreateTaskBtn.gameObject.SetActive(false);
                 }
+                
+                RefreshUserInfo();
             });
+            
             // 主页显示时隐藏返回主页按钮
             backToHomeBtn.gameObject.SetActive(false);
+            
             // 初始进入时在主页，标题显示“修行手册”
             titleText.text = "修行手册";
 
@@ -148,8 +161,7 @@ namespace LazyPan {
         /// 加载设置并更新界面上的用户名、交互点和日期信息
         /// </summary>
         private void RefreshUserInfo() {
-            // 从指定路径加载用户设置资源
-            MySetting mySetting = Loader.LoadAsset<MySetting>(AssetType.ASSET, "Setting/MySetting");
+            _save ??= PlayerSaveStore.LoadOrCreate();
 
             // 获取场景A的流程实例
             Flo.Instance.GetFlow(out Flow_SceneA flow);
@@ -163,17 +175,221 @@ namespace LazyPan {
 
             // 主页用户简要交互点：TextMeshProUGUI: ui/界面/详情/主页/用户简要/交互点
             Comp userBrief = Cond.Instance.Get<Comp>(homePage, "用户简要");
+            
+            Image avatar = Cond.Instance.Get<Image>(userBrief, "头像");
+            avatar.sprite = AvatarCatalog.LoadAvatarSprite(_save);
+            
+            TextMeshProUGUI name = Cond.Instance.Get<TextMeshProUGUI>(userBrief, "名字");
+            name.text = _save.PlayerName ?? string.Empty;
+            
             TextMeshProUGUI briefInteractPoint = Cond.Instance.Get<TextMeshProUGUI>(userBrief, "交互点");
             briefInteractPoint.text = $"交互点:{GetAllInteractPoint()}";
-
-            // // 获取当前日期并格式化为中文格式
-            // string chineseDate = DateTime.Now.ToString("yyyy年MM月dd日"); // 2024年01月15日
-            // // 获取日期文本组件并更新内容
-            // TextMeshProUGUI date = Cond.Instance.Get<TextMeshProUGUI>(userInfo, "日期");
-            // date.text = chineseDate;
         }
 
         #endregion
+
+        private void BindMeUI(Comp userBrief) {
+            if (_profileBindingsInitialized) {
+                return;
+            }
+
+            _profileBindingsInitialized = true;
+
+            // 名字：优先用输入框（可编辑），若没有则只显示文字
+            TMP_InputField nameInput = Cond.Instance.Get<TMP_InputField>(userBrief, "名字");
+
+            if (nameInput != null) {
+                nameInput.onEndEdit.RemoveAllListeners();
+                nameInput.onEndEdit.AddListener(value => {
+                    _save ??= PlayerSaveStore.LoadOrCreate();
+                    string newName = (value ?? string.Empty).Trim();
+                    if (string.IsNullOrWhiteSpace(newName)) {
+                        newName = "玩家";
+                    }
+
+                    _save.PlayerName = newName;
+                    PlayerSaveStore.Save(_save);
+                    RenderMeUI(userBrief);
+                });
+            }
+
+            // 头像：点击图片上传本地图片（会复制到存档目录）
+            Comp avatarImageComp = Cond.Instance.Get<Comp>(userBrief, "头像");
+            if (avatarImageComp != null) {
+                BindAvatarClick(userBrief, avatarImageComp.GetComponent<Image>(), () => {
+                    string selected = OpenImageFilePicker();
+                    if (string.IsNullOrWhiteSpace(selected)) {
+                        return;
+                    }
+
+                    string copiedFileName = CopyAvatarToSaveFolder(selected);
+                    if (string.IsNullOrWhiteSpace(copiedFileName)) {
+                        return;
+                    }
+
+                    _save ??= PlayerSaveStore.LoadOrCreate();
+                    _save.CustomAvatarFileName = copiedFileName;
+                    PlayerSaveStore.Save(_save);
+                    RenderMeUI(userBrief);
+                });
+            }
+        }
+
+        /// <summary>
+        /// 刷新我
+        /// </summary>
+        /// <param name="meModule"></param>
+        private void RefreshMe(Comp meModule) {
+            if (meModule == null) {
+                return;
+            }
+
+            _save ??= PlayerSaveStore.LoadOrCreate();
+
+            if (!_meProfileBindingsInitialized) {
+                _meProfileBindingsInitialized = true;
+                BindMeUI(meModule);
+            }
+
+            RenderMeUI(meModule);
+        }
+
+        private void RenderMeUI(Comp userBrief) {
+            _save ??= PlayerSaveStore.LoadOrCreate();
+
+            // 显示名字（若有输入框就同步其内容；没有就用文字）
+            TextMeshProUGUI nameText = Cond.Instance.Get<TextMeshProUGUI>(userBrief, "名字");
+            if (nameText != null) {
+                nameText.text = _save.PlayerName ?? string.Empty;
+            }
+
+            // 显示头像（与 BindMeUI 一致：通过 Comp「头像」取 Image，确保选完头像后“我”界面立即看到变化）
+            Comp avatarComp = Cond.Instance.Get<Comp>(userBrief, "头像");
+            Image avatarImage = avatarComp != null ? avatarComp.GetComponent<Image>() : null;
+            if (avatarImage == null) {
+                avatarImage = Cond.Instance.Get<Image>(userBrief, "头像");
+            }
+            if (avatarImage != null) {
+                Sprite sp = AvatarCatalog.LoadAvatarSprite(_save);
+                if (sp != null) {
+                    avatarImage.sprite = sp;
+                    avatarImage.enabled = true;
+                    if (avatarImage.rectTransform != null) {
+                        LayoutRebuilder.MarkLayoutForRebuild(avatarImage.rectTransform);
+                    }
+                }
+            }
+        }
+
+        private void BindAvatarClick(Comp userBrief, Image avatarImage, Action onLeftClick) {
+            if (userBrief == null || avatarImage == null || onLeftClick == null) {
+                return;
+            }
+
+            // 按项目约定：优先通过 Comp 的 OnPointerClickEvent 绑定点击（带 PointerEventData 参数）
+            Comp avatarComp = Cond.Instance.Get<Comp>(userBrief, "头像");
+            if (avatarComp != null) {
+                avatarComp.OnPointerClickEvent.RemoveAllListeners();
+                avatarComp.OnPointerClickEvent.AddListener(call => {
+                    if (call != null && call.button == PointerEventData.InputButton.Left) {
+                        onLeftClick();
+                    }
+                });
+                return;
+            }
+
+            // 兜底：如果该节点没有挂 Comp（或事件为空），退回 EventTrigger，避免点击失效
+            AddPointerClick(avatarImage.gameObject, onLeftClick);
+        }
+
+        private void AddPointerClick(GameObject go, Action onClick) {
+            if (go == null || onClick == null) {
+                return;
+            }
+
+            var trigger = go.GetComponent<EventTrigger>();
+            if (trigger == null) {
+                trigger = go.AddComponent<EventTrigger>();
+            }
+
+            if (trigger.triggers == null) {
+                trigger.triggers = new System.Collections.Generic.List<EventTrigger.Entry>();
+            }
+
+            // 避免重复注册同类型事件：先移除已有 PointerClick
+            trigger.triggers.RemoveAll(e => e != null && e.eventID == EventTriggerType.PointerClick);
+
+            var entry = new EventTrigger.Entry { eventID = EventTriggerType.PointerClick };
+            entry.callback.AddListener(_ => onClick());
+            trigger.triggers.Add(entry);
+        }
+
+        private string CopyAvatarToSaveFolder(string sourcePath) {
+            try {
+                if (string.IsNullOrWhiteSpace(sourcePath) || !File.Exists(sourcePath)) {
+                    Debug.LogError("选择的头像文件不存在");
+                    return null;
+                }
+
+                string dir = AvatarCatalog.GetCustomAvatarDirectory();
+                if (!Directory.Exists(dir)) {
+                    Directory.CreateDirectory(dir);
+                }
+
+                string ext = Path.GetExtension(sourcePath);
+                if (string.IsNullOrWhiteSpace(ext)) {
+                    ext = ".png";
+                }
+
+                string fileName = $"avatar_{Guid.NewGuid():N}{ext}";
+                string destPath = Path.Combine(dir, fileName);
+
+                File.Copy(sourcePath, destPath, true);
+                return fileName;
+            } catch (Exception e) {
+                Debug.LogError($"复制头像失败：{e.Message}");
+                return null;
+            }
+        }
+
+        private string OpenImageFilePicker() {
+#if UNITY_EDITOR
+            try {
+                return UnityEditor.EditorUtility.OpenFilePanel("选择头像图片", "", "png,jpg,jpeg");
+            } catch (Exception e) {
+                Debug.LogError($"打开文件选择器失败：{e.Message}");
+                return null;
+            }
+#elif UNITY_STANDALONE_WIN
+            // 尽量在不引入额外插件的前提下提供 Windows 选档：
+            // 使用反射尝试 System.Windows.Forms.OpenFileDialog；若不可用则提示用户手动放文件。
+            try {
+                var asm = AppDomain.CurrentDomain.Load("System.Windows.Forms");
+                var dialogType = asm.GetType("System.Windows.Forms.OpenFileDialog");
+                if (dialogType == null) {
+                    Debug.LogWarning("当前运行环境不支持打开文件选择器，请将头像图片复制到存档目录后再设置。");
+                    return null;
+                }
+
+                dynamic dialog = Activator.CreateInstance(dialogType);
+                dialog.Filter = "Image Files (*.png;*.jpg;*.jpeg)|*.png;*.jpg;*.jpeg";
+                dialog.Multiselect = false;
+                var result = dialog.ShowDialog();
+                // DialogResult.OK == 1
+                if ((int)result == 1) {
+                    return (string)dialog.FileName;
+                }
+
+                return null;
+            } catch (Exception) {
+                Debug.LogWarning("当前运行环境不支持打开文件选择器，请将头像图片复制到存档目录后再设置。");
+                return null;
+            }
+#else
+            Debug.LogWarning("当前平台未实现本地头像选择器");
+            return null;
+#endif
+        }
 
         #region 成就信息
 
@@ -181,9 +397,7 @@ namespace LazyPan {
         /// 刷新所有成就信息的方法
         /// </summary>
         private void RefreshAllAchievementInfo() {
-            // 加载成就设置资源
-            AchievementSetting achievementSetting =
-                Loader.LoadAsset<AchievementSetting>(AssetType.ASSET, "Setting/AchievementSetting");
+            _save ??= PlayerSaveStore.LoadOrCreate();
 
             // 获取场景流程组件
             Flo.Instance.GetFlow(out Flow_SceneA flow);
@@ -204,7 +418,7 @@ namespace LazyPan {
             }
 
             // 遍历所有成就数据并刷新显示
-            foreach (var tmpAchievement in achievementSetting.AchievementDatas) {
+            foreach (var tmpAchievement in _save.Achievements) {
                 RefreshAchievementInfo(tmpAchievement);
             }
         }
@@ -213,7 +427,7 @@ namespace LazyPan {
         /// 刷新成就信息的方法
         /// </summary>
         /// <param name="tmpAchievement">传入的成就数据对象</param>
-        private void RefreshAchievementInfo(AchievementData tmpAchievement) {
+        private void RefreshAchievementInfo(PlayerAchievementV1 tmpAchievement) {
             // 关闭所有已打开的成就信息
             CloseAllInfo();
 
@@ -230,7 +444,7 @@ namespace LazyPan {
             Comp achievementTemplate = Cond.Instance.Get<Comp>(achievementInfo, "成就模板");
 
             // 如果成就已完成，则直接返回
-            if (tmpAchievement.IsAchievementFinished) {
+            if (tmpAchievement.IsFinished) {
                 return;
             }
 
@@ -240,10 +454,10 @@ namespace LazyPan {
 
             // 设置成就名称、内容和奖励文本
             TextMeshProUGUI achievementTile = Cond.Instance.Get<TextMeshProUGUI>(achievementInstance, "成就名");
-            achievementTile.text = tmpAchievement.AchievementTitle;
+            achievementTile.text = tmpAchievement.Title;
 
             TextMeshProUGUI achievementContent = Cond.Instance.Get<TextMeshProUGUI>(achievementInstance, "成就内容");
-            achievementContent.text = tmpAchievement.AchievementContent;
+            achievementContent.text = tmpAchievement.Content;
 
             TextMeshProUGUI achievementReward = Cond.Instance.Get<TextMeshProUGUI>(achievementInstance, "成就奖励交互点");
             achievementReward.text = string.Concat("成就奖励点:", tmpAchievement.RewardInteractPoint);
@@ -258,16 +472,8 @@ namespace LazyPan {
             ButtonRegister.RemoveAllListener(achievementFinishBtn);
             ButtonRegister.AddListener(achievementFinishBtn, () => {
                 // 标记成就已完成，刷新用户信息和所有成就信息
-                tmpAchievement.IsAchievementFinished = true;
-
-#if UNITY_EDITOR
-                AchievementSetting achievementSettingForSave =
-                    Loader.LoadAsset<AchievementSetting>(AssetType.ASSET, "Setting/AchievementSetting");
-                if (achievementSettingForSave != null) {
-                    UnityEditor.EditorUtility.SetDirty(achievementSettingForSave);
-                    UnityEditor.AssetDatabase.SaveAssets();
-                }
-#endif
+                tmpAchievement.IsFinished = true;
+                PlayerSaveStore.Save(_save);
 
                 RefreshUserInfo();
                 RefreshAllAchievementInfo();
@@ -283,9 +489,7 @@ namespace LazyPan {
         /// 该方法会关闭所有现有信息，然后重新加载成就设置，并刷新所有任务
         /// </summary>
         private void RefreshAllTaskInfo() {
-            // 加载成就设置资源
-            AchievementSetting achievementSetting =
-                Loader.LoadAsset<AchievementSetting>(AssetType.ASSET, "Setting/AchievementSetting");
+            _save ??= PlayerSaveStore.LoadOrCreate();
 
             // 获取场景流程实例和界面组件
             Flo.Instance.GetFlow(out Flow_SceneA flow);
@@ -303,8 +507,8 @@ namespace LazyPan {
             ClearChildren(taskParent);
 
             // 遍历所有成就和任务数据，刷新每个任务的信息
-            foreach (var tmpAchievement in achievementSetting.AchievementDatas) {
-                foreach (var tmpTask in tmpAchievement.TaskDatas) {
+            foreach (var tmpAchievement in _save.Achievements) {
+                foreach (var tmpTask in tmpAchievement.Tasks) {
                     RefreshTaskInfo(tmpAchievement, tmpTask);
                 }
             }
@@ -314,7 +518,7 @@ namespace LazyPan {
         /// 刷新任务信息界面
         /// </summary>
         /// <param name="tmpAchievement">成就数据对象</param>
-        private void RefreshTaskInfo(AchievementData tmpAchievement) {
+        private void RefreshTaskInfo(PlayerAchievementV1 tmpAchievement) {
             // 获取Flow场景实例
             Flo.Instance.GetFlow(out Flow_SceneA flow);
             // 从Flow中获取界面组件
@@ -334,7 +538,7 @@ namespace LazyPan {
             ClearChildren(taskParent);
 
             // 遍历并刷新所有任务信息
-            foreach (var tmpTask in tmpAchievement.TaskDatas) {
+            foreach (var tmpTask in tmpAchievement.Tasks) {
                 RefreshTaskInfo(tmpAchievement, tmpTask, taskTemplate, taskParent);
             }
         }
@@ -344,7 +548,7 @@ namespace LazyPan {
         /// </summary>
         /// <param name="tmpAchievement">成就数据对象</param>
         /// <param name="tmpTask">任务数据对象</param>
-        private void RefreshTaskInfo(AchievementData tmpAchievement, TaskData tmpTask) {
+        private void RefreshTaskInfo(PlayerAchievementV1 tmpAchievement, PlayerTaskV1 tmpTask) {
             // 获取Flow场景实例
             Flo.Instance.GetFlow(out Flow_SceneA flow);
             // 从Flow中获取UI界面组件
@@ -364,13 +568,13 @@ namespace LazyPan {
         }
 
         private void RefreshTaskInfo(
-            AchievementData tmpAchievement,
-            TaskData tmpTask,
+            PlayerAchievementV1 tmpAchievement,
+            PlayerTaskV1 tmpTask,
             Comp taskTemplate,
             Transform taskParent
         ) {
             // 如果任务已完成，则直接返回
-            if (tmpTask.IsTaskFinished) {
+            if (tmpTask.IsFinished) {
                 return;
             }
 
@@ -380,17 +584,17 @@ namespace LazyPan {
 
             // 设置任务名称文本
             TextMeshProUGUI taskTile = Cond.Instance.Get<TextMeshProUGUI>(taskInstance, "任务名");
-            taskTile.text = tmpTask.TaskTitle;
+            taskTile.text = tmpTask.Title;
 
             // 设置任务内容文本
             TextMeshProUGUI taskContent = Cond.Instance.Get<TextMeshProUGUI>(taskInstance, "任务内容");
-            taskContent.text = tmpTask.TaskContent;
+            taskContent.text = tmpTask.Content;
 
             // 设置任务所属成就文本（如果有配置）
             try {
                 TextMeshProUGUI taskBelongAchievement =
                     Cond.Instance.Get<TextMeshProUGUI>(taskInstance, "任务所属成就");
-                taskBelongAchievement.text = tmpAchievement?.AchievementTitle ?? string.Empty;
+                taskBelongAchievement.text = tmpAchievement?.Title ?? string.Empty;
             } catch (Exception) {
                 // 可选显示：如果模板里没这个文案，则忽略
             }
@@ -403,16 +607,8 @@ namespace LazyPan {
             Button taskFinishBtn = Cond.Instance.Get<Button>(taskInstance, "任务完成");
             ButtonRegister.RemoveAllListener(taskFinishBtn);
             ButtonRegister.AddListener(taskFinishBtn, () => {
-                tmpTask.IsTaskFinished = true;
-
-#if UNITY_EDITOR
-                AchievementSetting achievementSettingForSave =
-                    Loader.LoadAsset<AchievementSetting>(AssetType.ASSET, "Setting/AchievementSetting");
-                if (achievementSettingForSave != null) {
-                    UnityEditor.EditorUtility.SetDirty(achievementSettingForSave);
-                    UnityEditor.AssetDatabase.SaveAssets();
-                }
-#endif
+                tmpTask.IsFinished = true;
+                PlayerSaveStore.Save(_save);
 
                 RefreshUserInfo();
                 RefreshAllTaskInfo();
@@ -424,32 +620,28 @@ namespace LazyPan {
         /// </summary>
         /// <returns>返回总交互点数</returns>
         private int GetAllInteractPoint() {
-            // 从指定路径加载游戏设置
-            MySetting mySetting = Loader.LoadAsset<MySetting>(AssetType.ASSET, "Setting/MySetting");
-            // 从指定路径加载成就设置
-            AchievementSetting achievementSetting =
-                Loader.LoadAsset<AchievementSetting>(AssetType.ASSET, "Setting/AchievementSetting");
+            _save ??= PlayerSaveStore.LoadOrCreate();
 
             // 初始化任务交互点数为0
             int taskInteractPoint = 0;
             // 遍历所有成就数据
-            foreach (var tmpAchievement in achievementSetting.AchievementDatas) {
+            foreach (var tmpAchievement in _save.Achievements) {
                 // 如果成就已完成，则添加其奖励交互点
-                if (tmpAchievement.IsAchievementFinished) {
+                if (tmpAchievement.IsFinished) {
                     taskInteractPoint += tmpAchievement.RewardInteractPoint;
                 }
 
                 // 遍历当前成就下的所有任务数据
-                foreach (var tmpTask in tmpAchievement.TaskDatas) {
+                foreach (var tmpTask in tmpAchievement.Tasks) {
                     // 如果任务已完成，则添加其奖励交互点
-                    if (tmpTask.IsTaskFinished) {
+                    if (tmpTask.IsFinished) {
                         taskInteractPoint += tmpTask.RewardInteractPoint;
                     }
                 }
             }
 
             // 返回基础交互点与任务交互点的总和
-            return mySetting.InteractPoint + taskInteractPoint;
+            return _save.BaseInteractPoint + taskInteractPoint;
         }
 
         #endregion
@@ -484,37 +676,13 @@ namespace LazyPan {
             }
         }
 
-        private Button TryGetButton(Comp parent, string sign) {
-            try {
-                return Cond.Instance.Get<Button>(parent, sign);
-            } catch (Exception) {
-                return null;
-            }
-        }
-
-        private TMP_InputField TryGetTMPInputField(Comp parent, string sign) {
-            try {
-                return Cond.Instance.Get<TMP_InputField>(parent, sign);
-            } catch (Exception) {
-                return null;
-            }
-        }
-
-        private TextMeshProUGUI TryGetTMPText(Comp parent, string sign) {
-            try {
-                return Cond.Instance.Get<TextMeshProUGUI>(parent, sign);
-            } catch (Exception) {
-                return null;
-            }
-        }
-
         private string GetInputOrText(Comp parent, string sign) {
-            TMP_InputField input = TryGetTMPInputField(parent, sign);
+            TMP_InputField input = Cond.Instance.Get<TMP_InputField>(parent, sign);
             if (input != null) {
                 return input.text;
             }
 
-            TextMeshProUGUI text = TryGetTMPText(parent, sign);
+            TextMeshProUGUI text = Cond.Instance.Get<TextMeshProUGUI>(parent, sign);
             if (text != null) {
                 return text.text;
             }
@@ -557,28 +725,27 @@ namespace LazyPan {
             }
 
             // 填充下拉选项（成就名）
-            AchievementSetting achievementSetting =
-                Loader.LoadAsset<AchievementSetting>(AssetType.ASSET, "Setting/AchievementSetting");
+            _save ??= PlayerSaveStore.LoadOrCreate();
             var titles = new System.Collections.Generic.List<string>();
             var seen = new System.Collections.Generic.HashSet<string>();
-            if (achievementSetting != null && achievementSetting.AchievementDatas != null) {
-                foreach (var a in achievementSetting.AchievementDatas) {
+            if (_save.Achievements != null) {
+                foreach (var a in _save.Achievements) {
                     if (a == null) {
                         continue;
                     }
 
-                    if (string.IsNullOrWhiteSpace(a.AchievementTitle)) {
+                    if (string.IsNullOrWhiteSpace(a.Title)) {
                         continue;
                     }
 
-                    if (seen.Add(a.AchievementTitle)) {
-                        titles.Add(a.AchievementTitle);
+                    if (seen.Add(a.Title)) {
+                        titles.Add(a.Title);
                     }
                 }
             }
 
             if (titles.Count == 0) {
-                Debug.LogError("当前没有可选成就（AchievementSetting 为空或未配置成就名），无法创建任务");
+                Debug.LogError("当前没有可选成就（存档内尚未建立任何成就），无法创建任务");
                 return;
             }
 
@@ -622,7 +789,7 @@ namespace LazyPan {
                     return;
                 }
 
-                AddTaskToConfig(achievementTitle, taskTitle, taskContent, reward);
+                AddTaskToSave(achievementTitle, taskTitle, taskContent, reward);
                 SwitchToTaskBrowseButtons();
                 RefreshAllTaskInfo();
             });
@@ -638,52 +805,47 @@ namespace LazyPan {
             }
         }
 
-        private void AddTaskToConfig(
+        private void AddTaskToSave(
             string achievementTitle,
             string taskTitle,
             string taskContent,
             int rewardInteractPoint
         ) {
-            AchievementSetting achievementSetting =
-                Loader.LoadAsset<AchievementSetting>(AssetType.ASSET, "Setting/AchievementSetting");
+            _save ??= PlayerSaveStore.LoadOrCreate();
 
-            if (achievementSetting.AchievementDatas == null) {
-                achievementSetting.AchievementDatas = new System.Collections.Generic.List<AchievementData>();
-            }
-
-            AchievementData targetAchievement = null;
-            foreach (var a in achievementSetting.AchievementDatas) {
-                if (a != null && a.AchievementTitle == achievementTitle) {
+            PlayerAchievementV1 targetAchievement = null;
+            foreach (var a in _save.Achievements) {
+                if (a != null && a.Title == achievementTitle) {
                     targetAchievement = a;
                     break;
                 }
             }
 
             if (targetAchievement == null) {
-                targetAchievement = new AchievementData {
-                    AchievementTitle = achievementTitle,
-                    AchievementContent = "任務預設歸屬（新添加的任務將先放在此成就名下）",
-                    IsAchievementFinished = false,
-                    RewardInteractPoint = 0
+                targetAchievement = new PlayerAchievementV1 {
+                    Id = Guid.NewGuid().ToString("N"),
+                    Title = achievementTitle,
+                    Content = "任务预设归属（新添加的任务将先放在此成就名下）",
+                    IsFinished = false,
+                    RewardInteractPoint = 0,
+                    Tasks = new System.Collections.Generic.List<PlayerTaskV1>()
                 };
-                achievementSetting.AchievementDatas.Add(targetAchievement);
+                _save.Achievements.Add(targetAchievement);
             }
 
-            if (targetAchievement.TaskDatas == null) {
-                targetAchievement.TaskDatas = new System.Collections.Generic.List<TaskData>();
+            if (targetAchievement.Tasks == null) {
+                targetAchievement.Tasks = new System.Collections.Generic.List<PlayerTaskV1>();
             }
 
-            targetAchievement.TaskDatas.Add(new TaskData {
-                TaskTitle = taskTitle,
-                TaskContent = taskContent,
+            targetAchievement.Tasks.Add(new PlayerTaskV1 {
+                Id = Guid.NewGuid().ToString("N"),
+                Title = taskTitle,
+                Content = taskContent,
                 RewardInteractPoint = rewardInteractPoint,
-                IsTaskFinished = false
+                IsFinished = false
             });
 
-#if UNITY_EDITOR
-            UnityEditor.EditorUtility.SetDirty(achievementSetting);
-            UnityEditor.AssetDatabase.SaveAssets();
-#endif
+            PlayerSaveStore.Save(_save);
         }
 
         #endregion
