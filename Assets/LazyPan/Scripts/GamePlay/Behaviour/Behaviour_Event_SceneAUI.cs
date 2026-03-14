@@ -7,8 +7,11 @@ using UnityEngine.EventSystems;
 
 namespace LazyPan {
     public class Behaviour_Event_SceneAUI : Behaviour {
-        private Button _createTaskBtn;
-        private Button _cancelCreateTaskBtn;
+        private Button _createBtn;
+        private Button _cancelCreateBtn;
+        private TextMeshProUGUI _createText;
+        private TextMeshProUGUI _cancelCreateText;
+        private string _createContext;
         private PlayerSaveV1 _save;
         private bool _profileBindingsInitialized;
         private bool _meProfileBindingsInitialized;
@@ -36,10 +39,12 @@ namespace LazyPan {
             // 获取各个模块组件
             Comp meModule = Cond.Instance.Get<Comp>(detailComp, "我");
             Comp taskManagementModule = Cond.Instance.Get<Comp>(detailComp, "任务");
+            Comp achievementModule = Cond.Instance.Get<Comp>(detailComp, "成就");
 
             // 获取各个按钮
             Button meBtn = Cond.Instance.Get<Button>(moduleEntrance, "我");
             Button taskManagementBtn = Cond.Instance.Get<Button>(moduleEntrance, "任务");
+            Button achievementBtn = Cond.Instance.Get<Button>(moduleEntrance, "成就");
 
             // 获取状态栏组件
             Comp statusBar = Cond.Instance.Get<Comp>(interfaceComp, "状态栏");
@@ -48,36 +53,33 @@ namespace LazyPan {
             // 获取返回主页按钮
             Button backToHomeBtn = Cond.Instance.Get<Button>(statusBar, "返回主页");
             // 任务页相关按钮（可能在部分UI版本中不存在）
-            _createTaskBtn = Cond.Instance.Get<Button>(statusBar, "创建任务");
-            _cancelCreateTaskBtn = Cond.Instance.Get<Button>(statusBar, "取消创建任务");
+            _createBtn = Cond.Instance.Get<Button>(statusBar, "创建");
+            _cancelCreateBtn = Cond.Instance.Get<Button>(statusBar, "取消创建");
+            _createText = Cond.Instance.Get<TextMeshProUGUI>(statusBar, "创建");
+            _cancelCreateText = Cond.Instance.Get<TextMeshProUGUI>(statusBar, "取消创建");
 
-            if (_createTaskBtn != null) {
-                _createTaskBtn.gameObject.SetActive(false);
-            }
-
-            if (_cancelCreateTaskBtn != null) {
-                _cancelCreateTaskBtn.gameObject.SetActive(false);
-            }
+            _createBtn.gameObject.SetActive(false);
+            _cancelCreateBtn.gameObject.SetActive(false);
 
             // 注册"我"按钮点击事件
             ButtonRegister.RemoveAllListener(meBtn);
             ButtonRegister.AddListener(meBtn, () => {
                 homePage.gameObject.SetActive(false);
-                meModule.gameObject.SetActive(true);
                 taskManagementModule.gameObject.SetActive(false);
+                achievementModule.gameObject.SetActive(false);
+                meModule.gameObject.SetActive(true);
+
                 // 更新标题为当前页面中文名称
                 titleText.text = "我";
                 backToHomeBtn.gameObject.SetActive(true);
 
                 RefreshMe(meModule);
 
-                if (_createTaskBtn != null) {
-                    _createTaskBtn.gameObject.SetActive(false);
-                }
-
-                if (_cancelCreateTaskBtn != null) {
-                    _cancelCreateTaskBtn.gameObject.SetActive(false);
-                }
+                _createBtn.gameObject.SetActive(false);
+                _cancelCreateBtn.gameObject.SetActive(false);
+                
+                _createContext = string.Empty;
+                UpdateCreateButtonsForContext();
             });
 
             // 注册"任务"按钮点击事件
@@ -85,63 +87,86 @@ namespace LazyPan {
             ButtonRegister.AddListener(taskManagementBtn, () => {
                 homePage.gameObject.SetActive(false);
                 meModule.gameObject.SetActive(false);
+                achievementModule.gameObject.SetActive(false);
                 taskManagementModule.gameObject.SetActive(true);
+
                 // 更新标题为当前页面中文名称
                 titleText.text = "任务";
                 backToHomeBtn.gameObject.SetActive(true);
                 RefreshAllTaskInfo();
+                _createContext = "任务";
+                
+                _createBtn.gameObject.SetActive(true);
+                _cancelCreateBtn.gameObject.SetActive(false);
 
-                if (_createTaskBtn != null) {
-                    _createTaskBtn.gameObject.SetActive(true);
-                }
-
-                if (_cancelCreateTaskBtn != null) {
-                    _cancelCreateTaskBtn.gameObject.SetActive(false);
-                }
+                UpdateCreateButtonsForContext();
             });
+
+            // 注册"成就"按钮点击事件
+            if (achievementBtn != null && achievementModule != null) {
+                ButtonRegister.RemoveAllListener(achievementBtn);
+                ButtonRegister.AddListener(achievementBtn, () => {
+                    homePage.gameObject.SetActive(false);
+                    meModule.gameObject.SetActive(false);
+                    taskManagementModule.gameObject.SetActive(false);
+                    achievementModule.gameObject.SetActive(true);
+                    // 更新标题为当前页面中文名称
+                    titleText.text = "成就";
+                    backToHomeBtn.gameObject.SetActive(true);
+                    RefreshAllAchievementInfo();
+                    _createContext = "成就";
+
+                    _createBtn.gameObject.SetActive(true);
+                    _cancelCreateBtn.gameObject.SetActive(false);
+
+                    UpdateCreateButtonsForContext();
+                });
+            }
             
-            // 状态栏：创建任务（进入创建表单态）
-            if (_createTaskBtn != null) {
-                ButtonRegister.RemoveAllListener(_createTaskBtn);
-                ButtonRegister.AddListener(_createTaskBtn, () => {
-                    if (_createTaskBtn != null) {
-                        _createTaskBtn.gameObject.SetActive(false);
-                    }
 
-                    if (_cancelCreateTaskBtn != null) {
-                        _cancelCreateTaskBtn.gameObject.SetActive(true);
-                    }
+            if (_createBtn != null) {
+                ButtonRegister.RemoveAllListener(_createBtn);
+                ButtonRegister.AddListener(_createBtn, () => {
+                    _createBtn.gameObject.SetActive(false);
+                    _cancelCreateBtn.gameObject.SetActive(true);
 
-                    ShowCreateTaskForm();
+                    UpdateCreateButtonsForContext();
+
+                    if (_createContext == "成就") {
+                        ShowCreateAchievementForm();
+                    } else {
+                        ShowCreateTaskForm();
+                    }
                 });
             }
 
             // 状态栏：取消创建任务（回到任务列表态）
-            if (_cancelCreateTaskBtn != null) {
-                ButtonRegister.RemoveAllListener(_cancelCreateTaskBtn);
-                ButtonRegister.AddListener(_cancelCreateTaskBtn, () => {
+            if (_cancelCreateBtn != null) {
+                ButtonRegister.RemoveAllListener(_cancelCreateBtn);
+                ButtonRegister.AddListener(_cancelCreateBtn, () => {
                     SwitchToTaskBrowseButtons();
-                    RefreshAllTaskInfo();
+                    if (_createContext == "成就") {
+                        RefreshAllAchievementInfo();
+                    } else {
+                        RefreshAllTaskInfo();
+                    }
                 });
             }
 
             ButtonRegister.RemoveAllListener(backToHomeBtn);
             ButtonRegister.AddListener(backToHomeBtn, () => {
-                homePage.gameObject.SetActive(true);
                 meModule.gameObject.SetActive(false);
                 taskManagementModule.gameObject.SetActive(false);
+                achievementModule.gameObject.SetActive(false);
+                homePage.gameObject.SetActive(true);
+
                 // 返回主页时标题显示“修行手册”
                 titleText.text = "修行手册";
                 backToHomeBtn.gameObject.SetActive(false);
 
-                if (_createTaskBtn != null) {
-                    _createTaskBtn.gameObject.SetActive(false);
-                }
+                _createBtn.gameObject.SetActive(false);
+                _cancelCreateBtn.gameObject.SetActive(false);
 
-                if (_cancelCreateTaskBtn != null) {
-                    _cancelCreateTaskBtn.gameObject.SetActive(false);
-                }
-                
                 RefreshUserInfo();
             });
             
@@ -404,13 +429,14 @@ namespace LazyPan {
 
             // 获取界面组件
             Comp interfaceComp = Cond.Instance.Get<Comp>(flow.GetUI(), "界面");
+            Comp detailComp = Cond.Instance.Get<Comp>(interfaceComp, "详情");
 
-            // 获取成就信息组件并激活
-            Comp achievementInfo = Cond.Instance.Get<Comp>(interfaceComp, "成就信息");
-            achievementInfo.gameObject.SetActive(true);
+            // 获取成就界面组件并激活
+            Comp achievementPage = Cond.Instance.Get<Comp>(detailComp, "成就");
+            achievementPage.gameObject.SetActive(true);
 
             // 获取成就列表的父级Transform
-            Transform achievementParent = Cond.Instance.Get<Transform>(achievementInfo, "父物体");
+            Transform achievementParent = Cond.Instance.Get<Transform>(achievementPage, "父物体");
 
             // 清空所有现有的成就子物体
             foreach (Transform tmp in achievementParent) {
@@ -434,14 +460,16 @@ namespace LazyPan {
             // 获取Flow场景实例中的UI界面组件
             Flo.Instance.GetFlow(out Flow_SceneA flow);
             Comp interfaceComp = Cond.Instance.Get<Comp>(flow.GetUI(), "界面");
+            Comp detailComp = Cond.Instance.Get<Comp>(interfaceComp, "详情");
 
-            // 获取并激活成就信息界面组件
-            Comp achievementInfo = Cond.Instance.Get<Comp>(interfaceComp, "成就信息");
-            achievementInfo.gameObject.SetActive(true);
+            // 获取并激活成就界面组件
+            Comp achievementPage = Cond.Instance.Get<Comp>(detailComp, "成就");
+            achievementPage.gameObject.SetActive(true);
 
             // 获取成就信息的父物体和模板组件
-            Transform achievementParent = Cond.Instance.Get<Transform>(achievementInfo, "父物体");
-            Comp achievementTemplate = Cond.Instance.Get<Comp>(achievementInfo, "成就模板");
+            Comp templateRoot = Cond.Instance.Get<Comp>(interfaceComp, "模板");
+            Comp achievementTemplate = Cond.Instance.Get<Comp>(templateRoot, "成就模板");
+            Transform achievementParent = Cond.Instance.Get<Transform>(achievementPage, "父物体");
 
             // 如果成就已完成，则直接返回
             if (tmpAchievement.IsFinished) {
@@ -795,13 +823,88 @@ namespace LazyPan {
             });
         }
 
+        private void ShowCreateAchievementForm() {
+            Flo.Instance.GetFlow(out Flow_SceneA flow);
+            Comp interfaceComp = Cond.Instance.Get<Comp>(flow.GetUI(), "界面");
+            Comp detailComp = Cond.Instance.Get<Comp>(interfaceComp, "详情");
+
+            Comp achievementPage = Cond.Instance.Get<Comp>(detailComp, "成就");
+            achievementPage.gameObject.SetActive(true);
+
+            Transform achievementParent = Cond.Instance.Get<Transform>(achievementPage, "父物体");
+            ClearChildren(achievementParent);
+
+            Comp templateRoot = Cond.Instance.Get<Comp>(interfaceComp, "模板");
+
+            // 优先用添加成就模板，没有则参考添加任务模板（共用同一套表单项名：任务名/任务内容/任务奖励交互点）
+            Comp addAchievementTemplate = Cond.Instance.Get<Comp>(templateRoot, "添加成就模板");
+
+            Comp instance = GameObject.Instantiate(addAchievementTemplate, achievementParent);
+            instance.gameObject.SetActive(true);
+
+            Button createDoneBtn = Cond.Instance.Get<Button>(instance, "创建完成");
+
+            ButtonRegister.RemoveAllListener(createDoneBtn);
+            ButtonRegister.AddListener(createDoneBtn, () => {
+                // 支持成就模板字段名或任务模板字段名
+                string title = GetInputOrText(instance, "成就名").Trim();
+                string content = GetInputOrText(instance, "成就内容").Trim();
+                string rewardText = GetInputOrText(instance, "成就奖励交互点").Trim();
+                title = title?.Trim() ?? string.Empty;
+                content = content?.Trim() ?? string.Empty;
+                rewardText = rewardText?.Trim() ?? string.Empty;
+
+                if (string.IsNullOrWhiteSpace(title)) {
+                    Debug.LogError("成就名不能为空");
+                    return;
+                }
+
+                if (!int.TryParse(rewardText, out int reward) || reward < 0) {
+                    Debug.LogError("成就奖励交互点必须是大于等于0的整数");
+                    return;
+                }
+
+                _save ??= PlayerSaveStore.LoadOrCreate();
+                if (_save.Achievements == null) {
+                    _save.Achievements = new System.Collections.Generic.List<PlayerAchievementV1>();
+                }
+                _save.Achievements.Add(new PlayerAchievementV1 {
+                    Id = Guid.NewGuid().ToString("N"),
+                    Title = title,
+                    Content = content ?? string.Empty,
+                    IsFinished = false,
+                    RewardInteractPoint = reward,
+                    Tasks = new System.Collections.Generic.List<PlayerTaskV1>()
+                });
+                PlayerSaveStore.Save(_save);
+
+                SwitchToTaskBrowseButtons();
+                RefreshAllAchievementInfo();
+            });
+        }
+
         private void SwitchToTaskBrowseButtons() {
-            if (_createTaskBtn != null) {
-                _createTaskBtn.gameObject.SetActive(true);
+            _createBtn.gameObject.SetActive(true);
+            _cancelCreateBtn.gameObject.SetActive(false);
+
+            UpdateCreateButtonsForContext();
+        }
+
+        private void UpdateCreateButtonsForContext() {
+            if (_createText == null || _cancelCreateText == null) {
+                return;
             }
 
-            if (_cancelCreateTaskBtn != null) {
-                _cancelCreateTaskBtn.gameObject.SetActive(false);
+            switch (_createContext) {
+                case "成就":
+                    _createText.text = "创建成就";
+                    _cancelCreateText.text = "取消创建成就";
+                    break;
+                case "任务":
+                default:
+                    _createText.text = "创建任务";
+                    _cancelCreateText.text = "取消创建任务";
+                    break;
             }
         }
 

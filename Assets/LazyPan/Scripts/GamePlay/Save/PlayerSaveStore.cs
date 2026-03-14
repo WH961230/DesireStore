@@ -67,9 +67,7 @@ namespace LazyPan {
                 Debug.LogWarning($"存档版本 {data.SchemaVersion} 与当前 {CurrentSchemaVersion} 不一致，尚未实现迁移，将以现有数据继续执行。");
             }
 
-            // 给 UI 预设一个成就，避免下拉选单无数据无法建立任务
-            EnsureDefaultAchievement(data);
-
+            // 默认第一次打开项目成就和任务为空，不自动添加预设成就
             Save(data);
             return data;
         }
@@ -130,28 +128,6 @@ namespace LazyPan {
             }
         }
 
-        private static void EnsureDefaultAchievement(PlayerSaveV1 data) {
-            if (data == null) {
-                return;
-            }
-
-            const string defaultTitle = "打工效率部部长";
-
-            foreach (var a in data.Achievements) {
-                if (a != null && string.Equals(a.Title, defaultTitle, StringComparison.Ordinal)) {
-                    return;
-                }
-            }
-
-            data.Achievements.Add(new PlayerAchievementV1 {
-                Id = Guid.NewGuid().ToString("N"),
-                Title = defaultTitle,
-                Content = "任务预设归属（新添加的任务将先放在此成就名下）",
-                IsFinished = false,
-                RewardInteractPoint = 0,
-                Tasks = new List<PlayerTaskV1>()
-            });
-        }
     }
 }
 
