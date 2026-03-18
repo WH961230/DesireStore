@@ -1,0 +1,72 @@
+---
+description: LazyPanPro Unity 框架总览与约定（快速恢复上下文）
+alwaysApply: false
+---
+
+# LazyPanPro 框架总览
+
+## 核心启动流程
+
+- **入口场景 & 启动脚本**
+  - 启动场景通常使用 `Assets/LazyPan/Bundles/Scenes/Launch.unity`。
+  - `Launch`（`Packages/LazyPanPro/Runtime/Core/Global/Launch.cs`）负责：
+    - 初始化全局配置与资源：`Config.Instance.Init()`、`Obj.Instance.Init()`。
+    - 加载全局加载界面 Canvas：`Loader.LoadGo("加载画布", "Global/Global_Loading_UIRoot", null, true)`，并：
+      - 挂载 `Stage` 组件、`Canvas.sortingOrder = 1`
+      - `DontDestroyOnLoad(UIDontDestroyRoot.gameObject)`
+    - 自身也 `DontDestroyOnLoad(gameObject)`。
+    - 初始化控制台：`ConsoleEx.Instance.Init(OpenConsole)`。
+    - 根据 `StageLoadScene` 调用 `StageLoad(sceneName)` 进入下一场景。
+
+- **Stage：加载阶段流水线**
+  - `Stage`（`Packages/LazyPanPro/Runtime/Core/Global/Stage.cs`）在场景切换期间负责“作业队列”：
+    - 内部维护 `Queue<StageWork> works` 和当前 `StageWork work`。
+    - `Load(delayTime, sceneName)` 会按顺序入队（默认顺序）：
+      - 可选 `LoadLoadingUI`：加载 `UI/UI_Loading`，拿到 `Comp loadingUIComp`。
+      - `LoadScene`：`Loader.LoadSceneAsync(sceneName)` 异步加载；`progress >= 0.9f` 后允许激活场景。
+      - `LoadGlobal`：场景激活后加载 `Global/Global`，获取 `Game` 并 `Init()`；随后在 `delayTime` 到达后把进度推到 1。
+    - `Update()` 中：
+      - `work == null` 且队列非空时 `Dequeue()` 并 `Start()`
+      - 循环调用 `work.Update()`
+      - `work.IsDone` 时调用 `work.Complete()` 并切换到下一个作业
+
+- **Game：全局游戏单例与事件总线**
+  - `Game`（`Packages/LazyPanPro/Runtime/Core/Global/Game.cs`）挂在 `Global/Global` 预制体上，提供：
+    - 静态单例：`Game.instance`
+    - 加载状态：`IsLoading`
+    - `Init()` 会执行（按当前代码）：
+      - `Obj.Instance.Preload()`
+      - `UI.Instance.Preload()`
+      - `Flo.Instance.Preload()`
+    - 事件总线：
+      - `OnLoadingOverEvent`：加载完成触发
+      - `OnUpdateEvent` / `OnFixedUpdateEvent` / `OnLateUpdateEvent`：在对应 Unity 生命周期中统一分发
+
+## 编辑器侧：一键引导与项目初始化
+
+- **LazyPanGuide：安装向导窗口**
+  - `LazyPanGuide`（`Packages/LazyPanPro/Editor/LazyPanGuide.cs`）是 LazyPanPro 的 Editor 引导工具窗口，关键能力：
+    - **语言切换**：`English / 中文 / 日本語`，通过 `LazyPanTool.GetText(key)` 多语言展示；使用 `EditorPrefs("SelectedLanguageIndex")` 保存。
+    - **标签页滑动动画**：通过 `EditorPrefs("OpenSliderAnim")` 保存开关，并调用 `LazyPanTool.CheckTabSliderAnim(open)` 生效。
+
+- **环境配置（常用七步）**
+  1. **清除旧目录**：删除 `Assets/AddressableAssetsData`、`Assets/LazyPan`、`Assets/StreamingAssets`、`Assets/TextMesh Pro`。
+  2. **创建基础目录**（`CreateBaseFilePath`）：在 `Assets/LazyPan` 下创建 `Bundles/...` 与 `Scripts/GamePlay/...` 结构。
+  3. **拷贝模板资源**（`CopyFilesToDirectory`）：
+     - 从 `Packages/evoreek.lazypan/Runtime/...` 复制到 `Assets/...`（Configs/Prefabs/Scenes/TextMeshPro/Csv->StreamingAssets）。
+  4. **创建 Addressables 并自动加入资源**：
+     - `CreateAddressableAsset()` 创建默认配置。
+     - `AutoInstallAddressableData()` 将 GameSetting、Configs、各类 Prefabs/Images/Sounds 目录、输入控制等加入默认 Group。
+  5. **自动生成流程**：`Generate.GenerateFlow()`。
+  6. **自动生成行为**：`Generate.GenerateBehaviour(false)`。
+  7. **场景设置**：
+     - `MoveSceneToBuildSettings()`：把 `Assets/LazyPan/Bundles/Scenes` 下所有 `.unity` 写入 Build Settings
+     - 并打开 `Assets/LazyPan/Bundles/Scenes/Launch.unity`
+
+## 之后对话的默认分析路径（约定）
+
+- **提到“启动/切场景/加载条/加载卡住”**：优先沿 `Launch → Stage(LoadLoadingUI/LoadScene/LoadGlobal) → Game.Init` 追踪。
+- **提到“加载完成后逻辑/统一 Update/全局事件”**：优先看 `Game.instance` 与 `UnityEvent` 分发链路。
+- **提到“第一次接入/如何安装/一键部署”**：优先输出 `LazyPanGuide` 的七步流程与每步影响面。
+- **提到“Obj/UI/Flo/Behaviour/Config 等系统细节”**：先基于以上启动链路定位入口与初始化时机，再按需阅读对应脚本补齐实现。
+

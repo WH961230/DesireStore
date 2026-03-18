@@ -1,0 +1,92 @@
+---
+description: LazyPanPro 与用户协作的留存经验（全托管 UI/Prefab/Behaviour）
+alwaysApply: true
+---
+
+# LazyPanPro 协作留存经验（防止反复修改）
+
+## 总目标
+
+- 用户不改名、不拖引用、不手工排版；AI 全托管生成与修复。
+- 所有改动可重复执行、可回滚（自动备份），并且能从行为脚本反推 prefab 需要的结构与引用。
+
+---
+
+## 关键事实（必须牢记）
+
+### 1) LazyPan `Comp.Get<T>(sign)` 不是查层级
+
+- `entity.Comp.Get<T>(sign)` / `Cond.Instance.Get<T>(entity, sign)` 依赖 `Comp` 组件内部的各类列表（`Buttons` / `Transforms` / `TMPInputFields` / ...）按 `Sign` 取引用。
+- 只创建子物体并命名为 `SaveButton` 仍然不够；必须把引用写入 `Comp.Buttons`（或对应列表）。
+
+### 2) LazyPan UI 系统不会自动执行 `Behaviour`
+
+- `UI.Preload/Open` 会实例化 `UI/<key>` 并 `SetActive`，但不会创建 `Entity`，也不会走 `BehaviourRegister`。
+- 若 UI 需要运行 `LazyPan.Behaviour` 的 `DelayedExecute()` 来绑定事件，必须有运行时 **Hook**（例如 `UIBehaviourHook`）在 `OnEnable()` 创建轻量 `Entity` 并执行行为。
+
+---
+
+## 组件生成与参数策略（强约束）
+
+- **默认必须保持 Unity 初始组件格式**：AI 只负责“存在性与引用绑定”，不私自调整视觉/布局参数。
+  - 例如：不要擅自改 `Toggle` 的尺寸、锚点、背景/勾选图、颜色、Transition，避免出现“比例失调看不出来”。
+  - 也不要默认改字体大小、对齐、按钮配色等。
+- **只有在用户明确提出样式/布局需求时**（如“文字改黑色”“VerticalLayout 排版”“间距=xx”），才允许写入样式/布局覆盖，并且要做到**可配置、可关闭**（写进 Operate JSON 的开关/参数），不要硬编码在脚本里。
+
+## 引用获取策略（强约束）
+
+- **优先使用 `Comp` 获取引用**：能用 `entity.Comp.Get<T>(sign)` 就不要用 `GetComponent* / Find / GetComponentInChildren`。
+- **Operate JSON 必须包含 `compBindings` 覆盖到行为所需组件**：
+  - Button → `Comp.Buttons`
+  - Transform → `Comp.Transforms`
+  - TMP_InputField → `Comp.TMPInputFields`
+- **例外**：当前 `Comp` 没有 `Toggle` 的专用列表时，允许在已绑定的 `Transform` 子树内做最小范围查找（仅作为兜底）。
+
+---
+
+## 标准交付物（每次都产出，减少返工）
+
+### A) Operate Spec（JSON）
+
+放置：`Assets/LazyPan/AI/<OperateName>.json`
+
+必须包含：
+- `prefabAssetPath` / `rootName`
+- `ensureRootComponents`：至少 `RectTransform`、`LazyPan.Comp`、`LazyPan.Data`；若 UI 行为需要执行，则包含 `LazyPan.UIBehaviourHook`
+- `nodes`：需要保证存在的节点与工厂创建（Input/Toggle/Text 等）
+- `compBindings`：把 `sign` 绑定到 `Comp` 的对应列表（Button/Transform/...）
+- 如需行为：`behaviourHooks` 指定 `BehaviourSign`
+
+### B) 编辑器一键应用器
+
+要求：
+- **每次写 prefab 前自动备份**：同目录 `<name>_bk.prefab`，覆盖为最新快照
+- **RectTransform 规范**：所有 UI 节点必须是 `RectTransform`；发现不是则替换并迁移子物体/组件
+- **智能复用**：优先按“组件类型 + 名称/关键词”复用已有按钮/输入框，匹配不到才创建，避免“点的不是绑定的那个”
+- **自动写 Comp 映射**：按 spec 写入 `Comp.*` 列表，保证 `Comp.Get<T>(sign)` 可用
+- **如需 UI 行为**：自动挂 `UIBehaviourHook` 并写入 `behaviourSign`
+- **自动样式**（可开关/可配置）：例如 TMP 文字黑色、placeholder 半透明黑
+- **自动布局**：VerticalLayout 默认值可配置（spacing/padding/alignment）
+
+### C) 运行时 UI 行为 Hook（当 UI 行为需要时）
+
+规则：
+- `OnEnable()`：确保 `Comp`/`Data`，创建轻量 `Entity`，反射实例化 `LazyPan.<BehaviourSign>` 并调用 `DelayedExecute()`
+- `OnDisable()`：调用 `Clear()` 解绑事件，避免重复绑定与泄漏
+
+---
+
+## 故障排查顺序（下次直接按这个走）
+
+1) **行为是否执行**：UI 上按钮没反应，优先检查 `UIBehaviourHook` 是否存在、behaviourSign 是否正确、`DelayedExecute()` 是否被调用
+2) **Comp 映射是否写入**：检查 `Comp.Buttons/Transforms` 中是否存在对应 `Sign` 且引用指向正确组件
+3) **绑定到哪个按钮**：若 UI 有多个按钮，查看一键脚本日志（matched/bind 路径），确认用户点击的是被绑定对象
+4) **布局/样式**：重叠、看不清、间距不对，优先通过 spec 参数化（不要靠手动拖动）
+
+---
+
+## 默认约定（与用户配合方式）
+
+- 用户输入尽量只提供：预制体名 + 行为脚本参考 + 期望功能。
+- AI 不要求用户改名/拖引用；所有必要节点若缺失由脚本创建，若已有则尽量复用。
+
