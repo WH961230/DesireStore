@@ -18,6 +18,7 @@ namespace LazyPan {
         public int BaseInteractPoint = 0;
 
         public List<PlayerAchievementV1> Achievements = new List<PlayerAchievementV1>();
+        public List<PlayerShopProductV1> ShopProducts = new List<PlayerShopProductV1>();
     }
 
     [Serializable]
@@ -37,6 +38,16 @@ namespace LazyPan {
         public string Content;
         public int RewardInteractPoint;
         public bool IsFinished;
+    }
+
+    [Serializable]
+    public class PlayerShopProductV1 {
+        public string Id;
+        public string Title;
+        public int Price;
+        public int Stock;
+        public string ProductType;
+        public int PurchasedQuantity;
     }
 
     public static class PlayerSaveStore {
@@ -124,6 +135,36 @@ namespace LazyPan {
                     if (string.IsNullOrWhiteSpace(t.Id)) {
                         t.Id = Guid.NewGuid().ToString("N");
                     }
+                }
+            }
+
+            if (data.ShopProducts == null) {
+                data.ShopProducts = new List<PlayerShopProductV1>();
+            }
+
+            foreach (var p in data.ShopProducts) {
+                if (p == null) {
+                    continue;
+                }
+
+                if (string.IsNullOrWhiteSpace(p.Id)) {
+                    p.Id = Guid.NewGuid().ToString("N");
+                }
+
+                if (p.Price < 0) {
+                    p.Price = 0;
+                }
+
+                if (p.Stock < 1) {
+                    p.Stock = 1;
+                }
+
+                if (p.PurchasedQuantity < 0) {
+                    p.PurchasedQuantity = 0;
+                }
+
+                if (string.IsNullOrWhiteSpace(p.ProductType)) {
+                    p.ProductType = "物品";
                 }
             }
         }

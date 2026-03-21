@@ -40,11 +40,23 @@ namespace LazyPan {
             Comp meModule = Cond.Instance.Get<Comp>(detailComp, "我");
             Comp taskManagementModule = Cond.Instance.Get<Comp>(detailComp, "任务");
             Comp achievementModule = Cond.Instance.Get<Comp>(detailComp, "成就");
+            Comp shopModule = null;
+            try {
+                shopModule = Cond.Instance.Get<Comp>(detailComp, "商店");
+            } catch {
+                // 商店节点未创建时忽略
+            }
 
             // 获取各个按钮
             Button meBtn = Cond.Instance.Get<Button>(moduleEntrance, "我");
             Button taskManagementBtn = Cond.Instance.Get<Button>(moduleEntrance, "任务");
             Button achievementBtn = Cond.Instance.Get<Button>(moduleEntrance, "成就");
+            Button shopBtn = null;
+            try {
+                shopBtn = Cond.Instance.Get<Button>(moduleEntrance, "商店");
+            } catch {
+                // 商店按钮未创建时忽略
+            }
 
             // 获取状态栏组件
             Comp statusBar = Cond.Instance.Get<Comp>(interfaceComp, "状态栏");
@@ -67,6 +79,7 @@ namespace LazyPan {
                 homePage.gameObject.SetActive(false);
                 taskManagementModule.gameObject.SetActive(false);
                 achievementModule.gameObject.SetActive(false);
+                if (shopModule != null) shopModule.gameObject.SetActive(false);
                 meModule.gameObject.SetActive(true);
 
                 // 更新标题为当前页面中文名称
@@ -88,6 +101,7 @@ namespace LazyPan {
                 homePage.gameObject.SetActive(false);
                 meModule.gameObject.SetActive(false);
                 achievementModule.gameObject.SetActive(false);
+                if (shopModule != null) shopModule.gameObject.SetActive(false);
                 taskManagementModule.gameObject.SetActive(true);
 
                 // 更新标题为当前页面中文名称
@@ -109,6 +123,7 @@ namespace LazyPan {
                     homePage.gameObject.SetActive(false);
                     meModule.gameObject.SetActive(false);
                     taskManagementModule.gameObject.SetActive(false);
+                    if (shopModule != null) shopModule.gameObject.SetActive(false);
                     achievementModule.gameObject.SetActive(true);
                     // 更新标题为当前页面中文名称
                     titleText.text = "成就";
@@ -122,7 +137,27 @@ namespace LazyPan {
                     UpdateCreateButtonsForContext();
                 });
             }
-            
+
+            // 注册"商店"按钮点击事件
+            if (shopBtn != null && shopModule != null) {
+                ButtonRegister.RemoveAllListener(shopBtn);
+                ButtonRegister.AddListener(shopBtn, () => {
+                    homePage.gameObject.SetActive(false);
+                    meModule.gameObject.SetActive(false);
+                    taskManagementModule.gameObject.SetActive(false);
+                    achievementModule.gameObject.SetActive(false);
+                    shopModule.gameObject.SetActive(true);
+                    titleText.text = "商店";
+                    backToHomeBtn.gameObject.SetActive(true);
+                    RefreshAllShopInfo();
+                    _createContext = "商店";
+
+                    _createBtn.gameObject.SetActive(true);
+                    _cancelCreateBtn.gameObject.SetActive(false);
+
+                    UpdateCreateButtonsForContext();
+                });
+            }
 
             if (_createBtn != null) {
                 ButtonRegister.RemoveAllListener(_createBtn);
@@ -134,6 +169,8 @@ namespace LazyPan {
 
                     if (_createContext == "成就") {
                         ShowCreateAchievementForm();
+                    } else if (_createContext == "商店") {
+                        ShowCreateShopItemForm();
                     } else {
                         ShowCreateTaskForm();
                     }
@@ -147,6 +184,8 @@ namespace LazyPan {
                     SwitchToTaskBrowseButtons();
                     if (_createContext == "成就") {
                         RefreshAllAchievementInfo();
+                    } else if (_createContext == "商店") {
+                        RefreshAllShopInfo();
                     } else {
                         RefreshAllTaskInfo();
                     }
@@ -158,6 +197,7 @@ namespace LazyPan {
                 meModule.gameObject.SetActive(false);
                 taskManagementModule.gameObject.SetActive(false);
                 achievementModule.gameObject.SetActive(false);
+                if (shopModule != null) shopModule.gameObject.SetActive(false);
                 homePage.gameObject.SetActive(true);
 
                 // 返回主页时标题显示“修行手册”
@@ -674,6 +714,181 @@ namespace LazyPan {
 
         #endregion
 
+        #region 商店信息
+
+        private int GetShopTotalSpent() {
+            _save ??= PlayerSaveStore.LoadOrCreate();
+            int total = 0;
+            if (_save.ShopProducts == null) {
+                return 0;
+            }
+            foreach (var p in _save.ShopProducts) {
+                if (p != null) {
+                    total += p.Price * p.PurchasedQuantity;
+                }
+            }
+            return total;
+        }
+
+        private int GetRemainingSpendable() {
+            return GetAllInteractPoint() - GetShopTotalSpent();
+        }
+
+        private void RefreshAllShopInfo() {
+            _save ??= PlayerSaveStore.LoadOrCreate();
+
+            Flo.Instance.GetFlow(out Flow_SceneA flow);
+            Comp interfaceComp = Cond.Instance.Get<Comp>(flow.GetUI(), "界面");
+            Comp detailComp = Cond.Instance.Get<Comp>(interfaceComp, "详情");
+
+            Comp shopPage = Cond.Instance.Get<Comp>(detailComp, "商店");
+            shopPage.gameObject.SetActive(true);
+
+            Transform shopParent = Cond.Instance.Get<Transform>(shopPage, "父物体");
+            ClearChildren(shopParent);
+
+            Comp templateRoot = Cond.Instance.Get<Comp>(interfaceComp, "模板");
+            Comp productTemplate = null;
+            try {
+                productTemplate = Cond.Instance.Get<Comp>(templateRoot, "商品模板");
+            } catch {
+                return;
+            }
+
+            if (_save.ShopProducts == null) {
+                return;
+            }
+
+            int remaining = GetRemainingSpendable();
+
+            foreach (var product in _save.ShopProducts) {
+                if (product == null) {
+                    continue;
+                }
+
+                bool canBuy = remaining >= product.Price;
+                if (product.Stock < 9999) {
+                    canBuy = canBuy && product.PurchasedQuantity < product.Stock;
+                }
+
+                Comp instance = GameObject.Instantiate(productTemplate, shopParent);
+                instance.gameObject.SetActive(true);
+
+                TextMeshProUGUI productName = Cond.Instance.Get<TextMeshProUGUI>(instance, "商品名");
+                if (productName != null) productName.text = product.Title ?? string.Empty;
+
+                TextMeshProUGUI productPrice = Cond.Instance.Get<TextMeshProUGUI>(instance, "价格");
+                if (productPrice != null) productPrice.text = $"价格:{product.Price}";
+
+                string stockDisplay = product.Stock >= 9999 ? "无限" : $"库存:{product.Stock - product.PurchasedQuantity}";
+                TextMeshProUGUI productStock = Cond.Instance.Get<TextMeshProUGUI>(instance, "库存");
+                if (productStock != null) productStock.text = stockDisplay;
+
+                TextMeshProUGUI productType = Cond.Instance.Get<TextMeshProUGUI>(instance, "类型");
+                if (productType != null) productType.text = $"类型:{product.ProductType ?? "物品"}";
+
+                Button buyBtn = Cond.Instance.Get<Button>(instance, "购买");
+                if (buyBtn != null) {
+                    buyBtn.interactable = canBuy;
+                    if (canBuy) {
+                        PlayerShopProductV1 captured = product;
+                        ButtonRegister.RemoveAllListener(buyBtn);
+                        ButtonRegister.AddListener(buyBtn, () => {
+                            PurchaseProduct(captured);
+                        });
+                    }
+                }
+            }
+        }
+
+        private void PurchaseProduct(PlayerShopProductV1 product) {
+            if (product == null) return;
+
+            _save ??= PlayerSaveStore.LoadOrCreate();
+            int remaining = GetRemainingSpendable();
+            if (remaining < product.Price) {
+                Debug.Log("余额不足，购买失败");
+                return;
+            }
+            if (product.Stock < 9999 && product.PurchasedQuantity >= product.Stock) {
+                Debug.Log("库存不足，购买失败");
+                return;
+            }
+
+            product.PurchasedQuantity++;
+            PlayerSaveStore.Save(_save);
+            Debug.Log($"购买成功：{product.Title}");
+
+            RefreshUserInfo();
+            RefreshAllShopInfo();
+        }
+
+        private void ShowCreateShopItemForm() {
+            Flo.Instance.GetFlow(out Flow_SceneA flow);
+            Comp interfaceComp = Cond.Instance.Get<Comp>(flow.GetUI(), "界面");
+            Comp detailComp = Cond.Instance.Get<Comp>(interfaceComp, "详情");
+
+            Comp shopPage = Cond.Instance.Get<Comp>(detailComp, "商店");
+            shopPage.gameObject.SetActive(true);
+
+            Transform shopParent = Cond.Instance.Get<Transform>(shopPage, "父物体");
+            ClearChildren(shopParent);
+
+            Comp templateRoot = Cond.Instance.Get<Comp>(interfaceComp, "模板");
+            Comp addProductTemplate = null;
+            try {
+                addProductTemplate = Cond.Instance.Get<Comp>(templateRoot, "添加商品模板");
+            } catch {
+                Debug.LogError("缺少 模板/添加商品模板");
+                return;
+            }
+
+            Comp instance = GameObject.Instantiate(addProductTemplate, shopParent);
+            instance.gameObject.SetActive(true);
+
+            Button createDoneBtn = Cond.Instance.Get<Button>(instance, "创建完成");
+            ButtonRegister.RemoveAllListener(createDoneBtn);
+            ButtonRegister.AddListener(createDoneBtn, () => {
+                string title = GetInputOrText(instance, "商品名").Trim();
+                string priceText = GetInputOrText(instance, "价格").Trim();
+                string stockText = GetInputOrText(instance, "库存").Trim();
+                string productType = GetInputOrText(instance, "类型").Trim();
+                if (string.IsNullOrWhiteSpace(productType)) productType = "物品";
+
+                if (string.IsNullOrWhiteSpace(title)) {
+                    Debug.LogError("商品名不能为空");
+                    return;
+                }
+                if (!int.TryParse(priceText, out int price) || price < 0) {
+                    Debug.LogError("价格必须是大于等于0的整数");
+                    return;
+                }
+                if (!int.TryParse(stockText, out int stock) || stock < 1) {
+                    Debug.LogError("库存必须是大于等于1的整数（1=一次性，9999=无限）");
+                    return;
+                }
+
+                _save ??= PlayerSaveStore.LoadOrCreate();
+                if (_save.ShopProducts == null) {
+                    _save.ShopProducts = new System.Collections.Generic.List<PlayerShopProductV1>();
+                }
+                _save.ShopProducts.Add(new PlayerShopProductV1 {
+                    Id = Guid.NewGuid().ToString("N"),
+                    Title = title,
+                    Price = price,
+                    Stock = stock,
+                    ProductType = productType,
+                    PurchasedQuantity = 0
+                });
+                PlayerSaveStore.Save(_save);
+
+                SwitchToTaskBrowseButtons();
+                RefreshAllShopInfo();
+            });
+        }
+
+        #endregion
+
         #region 通用
 
         /// <summary>
@@ -899,6 +1114,10 @@ namespace LazyPan {
                 case "成就":
                     _createText.text = "创建成就";
                     _cancelCreateText.text = "取消创建成就";
+                    break;
+                case "商店":
+                    _createText.text = "创建商品";
+                    _cancelCreateText.text = "取消创建商品";
                     break;
                 case "任务":
                 default:
