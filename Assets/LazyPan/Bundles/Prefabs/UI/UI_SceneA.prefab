@@ -16819,20 +16819,18 @@ MonoBehaviour:
   Renderers: []
   CharacterControllers: []
   Buttons:
-  - Sign: "\u5B8C\u6210"
+  - Sign: "\u8D2D\u4E70"
     Button: {fileID: 200058142364361593}
-  - Sign: "\u6210\u5C31\u6240\u6709\u4EFB\u52A1"
-    Button: {fileID: 0}
   Sliders: []
   Texts: []
   TextMeshProUGUIs:
-  - Sign: "\u6210\u5C31\u540D"
+  - Sign: "\u5546\u54C1\u540D"
     TextMeshProUGUI: {fileID: 3564944868014136660}
-  - Sign: "\u6210\u5C31\u5185\u5BB9"
+  - Sign: "\u4EF7\u683C"
     TextMeshProUGUI: {fileID: 6522352918122351856}
-  - Sign: "\u6210\u5C31\u8FDB\u5EA6"
+  - Sign: "\u5E93\u5B58"
     TextMeshProUGUI: {fileID: 1852010180141650528}
-  - Sign: "\u6210\u5C31\u5956\u52B1\u4EA4\u4E92\u70B9"
+  - Sign: "\u7C7B\u578B"
     TextMeshProUGUI: {fileID: 7877690077230802543}
   TMPInputFields: []
   Animators: []
