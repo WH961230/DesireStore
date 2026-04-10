@@ -3,7 +3,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using System.Collections;
 
-public class DraggableButton : MonoBehaviour,
+public class 可拖拽按钮 : MonoBehaviour,
     IBeginDragHandler, IDragHandler, IEndDragHandler,
     IPointerDownHandler, IPointerUpHandler {
     private RectTransform rectTransform;

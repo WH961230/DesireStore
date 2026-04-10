@@ -1,10 +1,9 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class ClickSpaceAreaDisapear : MonoBehaviour {
+public class 点击非本界面区域物体消失 : MonoBehaviour {
     public const int VK_LBUTTON = 0x01;
 
     [DllImport("user32.dll")]

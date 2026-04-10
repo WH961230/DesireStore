@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 using TMPro;
 using UnityEngine.EventSystems;
 
-public class WindowsTransparent : MonoBehaviour {
+public class 透明桌面 : MonoBehaviour {
     [DllImport("user32.dll")]
     private static extern IntPtr GetActiveWindow();
 
