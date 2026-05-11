@@ -1,7 +1,7 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using System.Runtime.InteropServices;
-using TMPro;
 using UnityEngine.EventSystems;
 
 public class 透明桌面 : MonoBehaviour {
@@ -12,10 +12,10 @@ public class 透明桌面 : MonoBehaviour {
     private static extern int SetWindowLong(IntPtr hWnd, int nIndex, uint dwNewLong);
     
     [DllImport("user32.dll")]
-    private static extern int SetWindowPos(IntPtr A, IntPtr B, uint a, uint b, uint c, uint d, uint e);
+    private static extern int SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, uint X, uint Y, uint cx, uint cy, uint uFlags);
 
     [DllImport("user32.dll")]
-    static extern int SetLayeredWindowAttributes(IntPtr hwnd, uint crKey, byte bAlpha, uint dwFlags);
+    private static extern bool SetForegroundWindow(IntPtr hWnd);
 
     private struct Margins {
         public int cxLeftWidth;
@@ -29,50 +29,98 @@ public class 透明桌面 : MonoBehaviour {
 
     const int GWL_EXSTYLE = -20;
     private const uint WS_EX_LAYERED = 0x00080000;
-    private const uint WS_EX_TRANSPERENT = 0x00000020;
+    private const uint WS_EX_TRANSPARENT = 0x00000020;
 
     private static readonly IntPtr HWND_TOPMOST = new IntPtr(-1);
-    
-    private const uint LWA_EVOREEK = 0x00000001;
+    private const uint SWP_NOSIZE = 0x0001;
+    private const uint SWP_NOMOVE = 0x0002;
+    private const uint SWP_NOACTIVATE = 0x0010;
+    private const uint SWP_SHOWWINDOW = 0x0040;
 
     private IntPtr hwnd;
     
+    private EventSystem cachedEventSystem;
+    private PointerEventData cachedPointerEventData;
+    private List<RaycastResult> cachedRaycastResults;
+    private Vector3 lastMousePosition;
+    private bool isClickThrough;
+    private float topmostCheckInterval = 2f;
+    private float lastTopmostCheckTime;
+
+    private void Awake() {
+        cachedRaycastResults = new List<RaycastResult>(8);
+    }
+
     private void Start() {
 #if !UNITY_EDITOR
         hwnd = GetActiveWindow();
         Margins margins = new Margins{ cxLeftWidth = -1};
         DwmExtendFrameIntoClientArea(hwnd, ref margins);
-        SetWindowLong(hwnd, GWL_EXSTYLE, WS_EX_LAYERED | WS_EX_TRANSPERENT);
-        // SetLayeredWindowAttributes(hwnd, 0, 0, LWA_EVOREEK);
-        SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, 0);
+        SetWindowLong(hwnd, GWL_EXSTYLE, WS_EX_LAYERED | WS_EX_TRANSPARENT);
+        SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
+        lastTopmostCheckTime = Time.realtimeSinceStartup;
 #endif
         Application.runInBackground = true;
+        cachedEventSystem = EventSystem.current;
+        lastMousePosition = Input.mousePosition;
     }
 
     private void Update() {
-        SetClickThrough(!IsMouseOver2DUI());
+        CheckWindowTopmost();
+        CheckMousePosition();
+    }
+
+    private void CheckWindowTopmost() {
+#if !UNITY_EDITOR
+        float currentTime = Time.realtimeSinceStartup;
+        if (currentTime - lastTopmostCheckTime >= topmostCheckInterval) {
+            lastTopmostCheckTime = currentTime;
+            SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE);
+        }
+#endif
+    }
+
+    private void CheckMousePosition() {
+        Vector3 currentMousePos = Input.mousePosition;
+        if (currentMousePos != lastMousePosition) {
+            lastMousePosition = currentMousePos;
+            UpdateClickThrough();
+        }
+    }
+    
+    private void UpdateClickThrough() {
+        bool shouldBeClickThrough = !IsMouseOver2DUI();
+        if (shouldBeClickThrough != isClickThrough) {
+            isClickThrough = shouldBeClickThrough;
+            SetClickThrough(isClickThrough);
+        }
     }
     
     bool IsMouseOver2DUI() {
-        // 获取 EventSystem 实例
-        EventSystem eventSystem = EventSystem.current;
-        // 创建一个 PointerEventData 对象
-        PointerEventData pointerEventData = new PointerEventData(eventSystem);
-        // 设置鼠标位置
-        pointerEventData.position = Input.mousePosition;
-        // 创建一个列表来存储射线检测结果
-        var results = new System.Collections.Generic.List<RaycastResult>();
-        // 使用 GraphicRaycaster 进行射线检测
-        eventSystem.RaycastAll(pointerEventData, results);
-        // 如果检测到 UI 元素，返回 true
-        return results.Count > 0;
+        EventSystem eventSystem = cachedEventSystem;
+        if (eventSystem == null) {
+            eventSystem = EventSystem.current;
+            cachedEventSystem = eventSystem;
+        }
+        if (eventSystem == null) return false;
+
+        if (cachedPointerEventData == null) {
+            cachedPointerEventData = new PointerEventData(eventSystem);
+        }
+        cachedPointerEventData.position = Input.mousePosition;
+        
+        cachedRaycastResults.Clear();
+        eventSystem.RaycastAll(cachedPointerEventData, cachedRaycastResults);
+        return cachedRaycastResults.Count > 0;
     }
 
     void SetClickThrough(bool clickThrough) {
+#if !UNITY_EDITOR
         if (clickThrough) {
-            SetWindowLong(hwnd, GWL_EXSTYLE, WS_EX_LAYERED | WS_EX_TRANSPERENT);
+            SetWindowLong(hwnd, GWL_EXSTYLE, WS_EX_LAYERED | WS_EX_TRANSPARENT);
         } else {
             SetWindowLong(hwnd, GWL_EXSTYLE, WS_EX_LAYERED);
         }
+#endif
     }
 }
