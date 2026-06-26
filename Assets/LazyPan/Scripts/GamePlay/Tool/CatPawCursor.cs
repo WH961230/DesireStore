@@ -28,6 +28,9 @@ public class CatPawCursor : MonoBehaviour {
 
     [Header("点击特效预制体")]
     public GameObject pawPrintPrefab;
+    
+    [Header("2d动画系统")]
+    public ImageAnim pawImageAnim;
 
     [Header("爪印存活时间")]
     public float pawPrintLifetime = 2f;
@@ -68,6 +71,14 @@ public class CatPawCursor : MonoBehaviour {
 
         Cursor.visible = false;
         lastPosition = Vector2.zero;
+
+        透明桌面.OnDesktopClick += OnDesktopClickHandler;
+    }
+
+    private void OnDesktopClickHandler() {
+        if (pawImageAnim != null) {
+            pawImageAnim.OnPlay("Test");
+        }
     }
 
     void Update() {
@@ -169,6 +180,7 @@ public class CatPawCursor : MonoBehaviour {
     }
 
     void OnDestroy() {
+        透明桌面.OnDesktopClick -= OnDesktopClickHandler;
         Cursor.visible = true;
     }
 }

@@ -10,12 +10,24 @@ public class 透明桌面 : MonoBehaviour {
 
     [DllImport("user32.dll")]
     private static extern int SetWindowLong(IntPtr hWnd, int nIndex, uint dwNewLong);
-    
+
     [DllImport("user32.dll")]
     private static extern int SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, uint X, uint Y, uint cx, uint cy, uint uFlags);
 
     [DllImport("user32.dll")]
     private static extern bool SetForegroundWindow(IntPtr hWnd);
+
+    [DllImport("user32.dll")]
+    private static extern IntPtr SetWindowsHookEx(int idHook, HookProc lpfn, IntPtr hMod, uint dwThreadId);
+
+    [DllImport("user32.dll")]
+    private static extern bool UnhookWindowsHookEx(IntPtr hhk);
+
+    [DllImport("user32.dll")]
+    private static extern IntPtr CallNextHookEx(IntPtr hhk, int nCode, IntPtr wParam, IntPtr lParam);
+
+    [DllImport("kernel32.dll")]
+    private static extern IntPtr GetModuleHandle(string lpModuleName);
 
     private struct Margins {
         public int cxLeftWidth;
@@ -37,8 +49,14 @@ public class 透明桌面 : MonoBehaviour {
     private const uint SWP_NOACTIVATE = 0x0010;
     private const uint SWP_SHOWWINDOW = 0x0040;
 
+    private const int WH_MOUSE_LL = 14;
+    private const int WM_LBUTTONDOWN = 0x0201;
+
+    private delegate IntPtr HookProc(int nCode, IntPtr wParam, IntPtr lParam);
+
     private IntPtr hwnd;
-    
+    private IntPtr mouseHook;
+
     private EventSystem cachedEventSystem;
     private PointerEventData cachedPointerEventData;
     private List<RaycastResult> cachedRaycastResults;
@@ -47,8 +65,19 @@ public class 透明桌面 : MonoBehaviour {
     private float topmostCheckInterval = 2f;
     private float lastTopmostCheckTime;
 
+    private HookProc mouseHookProc;
+
+    public static event Action OnDesktopClick;
+
     private void Awake() {
         cachedRaycastResults = new List<RaycastResult>(8);
+    }
+
+    private IntPtr MouseHookCallback(int nCode, IntPtr wParam, IntPtr lParam) {
+        if (nCode >= 0 && wParam.ToInt32() == WM_LBUTTONDOWN) {
+            OnDesktopClick?.Invoke();
+        }
+        return CallNextHookEx(mouseHook, nCode, wParam, lParam);
     }
 
     private void Start() {
@@ -59,6 +88,10 @@ public class 透明桌面 : MonoBehaviour {
         SetWindowLong(hwnd, GWL_EXSTYLE, WS_EX_LAYERED | WS_EX_TRANSPARENT);
         SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
         lastTopmostCheckTime = Time.realtimeSinceStartup;
+
+        // 注册全局鼠标钩子
+        mouseHookProc = MouseHookCallback;
+        mouseHook = SetWindowsHookEx(WH_MOUSE_LL, mouseHookProc, GetModuleHandle(null), 0);
 #endif
         Application.runInBackground = true;
         cachedEventSystem = EventSystem.current;
@@ -120,6 +153,15 @@ public class 透明桌面 : MonoBehaviour {
             SetWindowLong(hwnd, GWL_EXSTYLE, WS_EX_LAYERED | WS_EX_TRANSPARENT);
         } else {
             SetWindowLong(hwnd, GWL_EXSTYLE, WS_EX_LAYERED);
+        }
+#endif
+    }
+
+    void OnDestroy() {
+#if !UNITY_EDITOR
+        if (mouseHook != IntPtr.Zero) {
+            UnhookWindowsHookEx(mouseHook);
+            mouseHook = IntPtr.Zero;
         }
 #endif
     }
