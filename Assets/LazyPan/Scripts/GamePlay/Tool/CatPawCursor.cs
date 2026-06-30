@@ -23,14 +23,20 @@ public class CatPawCursor : MonoBehaviour {
     [Header("旋转跟随速度")]
     public float rotationSpeed = 10f;
 
-    [Header("任务栏高度阈值")]
-    public float taskbarThreshold = 40f;
-
     [Header("点击特效预制体")]
     public GameObject pawPrintPrefab;
     
     [Header("2d动画系统")]
     public ImageAnim pawImageAnim;
+
+    [Header("2d音频系统")]
+    public AudioSource audioSource;
+    
+    [Header("按下音频片段")]
+    public AudioClip mouseDownAudioClip;
+    
+    [Header("松开音频片段")]
+    public AudioClip mouseUpAudioClip;
 
     [Header("爪印存活时间")]
     public float pawPrintLifetime = 2f;
@@ -42,7 +48,6 @@ public class CatPawCursor : MonoBehaviour {
     private RectTransform rectTransform;
     private Canvas rootCanvas;
     private static IntPtr windowHandle;
-    private bool isVisible = true;
 
     private float targetAngle;
     private float currentAngle;
@@ -69,15 +74,38 @@ public class CatPawCursor : MonoBehaviour {
         SetWindowPos(windowHandle, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
         #endif
 
-        Cursor.visible = false;
         lastPosition = Vector2.zero;
 
         透明桌面.OnDesktopClick += OnDesktopClickHandler;
+        透明桌面.OnDesktopClickUp += OnDesktopClickUpHandler;
     }
 
+    // 同一帧 Unity Input 和 Win32 钩子可能都会触发，用帧号去重
+    private int lastInputDownFrame = -1;
+    private int lastInputUpFrame = -1;
+
     private void OnDesktopClickHandler() {
+        // Win32 钩子触发：仅当本帧 Update 没处理过才补一次（窗口穿透/程序后台时兜底）
+        if (Time.frameCount == lastInputDownFrame) return;
         if (pawImageAnim != null) {
             pawImageAnim.OnPlay("Test");
+        }
+
+        if (audioSource != null && mouseDownAudioClip != null) {
+            audioSource.clip = mouseDownAudioClip;
+            audioSource.Play();
+        }
+    }
+
+    private void OnDesktopClickUpHandler() {
+        if (Time.frameCount == lastInputUpFrame) return;
+        if (pawImageAnim != null) {
+            pawImageAnim.OnPlay("TestBack");
+        }
+        
+        if (audioSource != null && mouseUpAudioClip != null) {
+            audioSource.clip = mouseUpAudioClip;
+            audioSource.Play();
         }
     }
 
@@ -138,37 +166,36 @@ public class CatPawCursor : MonoBehaviour {
             Mathf.Cos(angleRad) * imageHeight
         );
 
-        // 任务栏检测
-        CheckTaskbarOcclusion(mouseScreenPos);
-
         // 点击特效
-        if (Input.GetMouseButtonDown(0) && isVisible) {
+        if (Input.GetMouseButtonDown(0)) {
+            lastInputDownFrame = Time.frameCount;
             SpawnPawPrint(headTargetPos);
+            if (pawImageAnim != null) {
+                pawImageAnim.OnPlay("Test");
+            }
+            
+            if (audioSource != null && mouseDownAudioClip != null) {
+                audioSource.clip = mouseDownAudioClip;
+                audioSource.Play();
+            }
+        }
+
+        if (Input.GetMouseButtonUp(0)) {
+            lastInputUpFrame = Time.frameCount;
+            if (pawImageAnim != null) {
+                pawImageAnim.OnPlay("TestBack");
+            }
+            
+            if (audioSource != null && mouseUpAudioClip != null) {
+                audioSource.clip = mouseUpAudioClip;
+                audioSource.Play();
+            }
         }
 
         // 速度缩放效果：速度 * 系数，使用平滑过渡
         float targetScale = 1f + currentVelocity * velocityScaleCoefficient;
         currentScale = Mathf.MoveTowards(currentScale, targetScale, Time.deltaTime * 10f);
         rectTransform.localScale = new Vector3(currentScale, currentScale, 1f);
-    }
-
-    void CheckTaskbarOcclusion(Vector2 screenPos) {
-        if (screenPos.y < taskbarThreshold) {
-            if (isVisible) {
-                SetCatPawVisible(false);
-            }
-        } else {
-            if (!isVisible) {
-                SetCatPawVisible(true);
-            }
-        }
-    }
-
-    void SetCatPawVisible(bool visible) {
-        isVisible = visible;
-        Color c = catPawImage.color;
-        c.a = visible ? 1f : 0f;
-        catPawImage.color = c;
     }
 
     void SpawnPawPrint(Vector2 position) {
@@ -181,6 +208,6 @@ public class CatPawCursor : MonoBehaviour {
 
     void OnDestroy() {
         透明桌面.OnDesktopClick -= OnDesktopClickHandler;
-        Cursor.visible = true;
+        透明桌面.OnDesktopClickUp -= OnDesktopClickUpHandler;
     }
 }

@@ -8,8 +8,12 @@ namespace LazyPan {
         public override void OnInspectorGUI() {
             base.OnInspectorGUI();
             _script = (ImageAnim)target;
-            if (GUILayout.Button("Play")) {
+            if (GUILayout.Button("Test")) {
                 _script.OnPlay("Test");
+            }
+
+            if (GUILayout.Button("TestBack")) {
+                _script.OnPlay("TestBack");
             }
         }
     }

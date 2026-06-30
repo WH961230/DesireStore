@@ -51,8 +51,12 @@ public class 透明桌面 : MonoBehaviour {
 
     private const int WH_MOUSE_LL = 14;
     private const int WM_LBUTTONDOWN = 0x0201;
+    private const int WM_LBUTTONUP = 0x0202;
 
     private delegate IntPtr HookProc(int nCode, IntPtr wParam, IntPtr lParam);
+
+    public static event Action OnDesktopClick;
+    public static event Action OnDesktopClickUp;
 
     private IntPtr hwnd;
     private IntPtr mouseHook;
@@ -67,15 +71,18 @@ public class 透明桌面 : MonoBehaviour {
 
     private HookProc mouseHookProc;
 
-    public static event Action OnDesktopClick;
-
     private void Awake() {
         cachedRaycastResults = new List<RaycastResult>(8);
     }
 
     private IntPtr MouseHookCallback(int nCode, IntPtr wParam, IntPtr lParam) {
-        if (nCode >= 0 && wParam.ToInt32() == WM_LBUTTONDOWN) {
-            OnDesktopClick?.Invoke();
+        if (nCode >= 0) {
+            int msg = wParam.ToInt32();
+            if (msg == WM_LBUTTONDOWN) {
+                OnDesktopClick?.Invoke();
+            } else if (msg == WM_LBUTTONUP) {
+                OnDesktopClickUp?.Invoke();
+            }
         }
         return CallNextHookEx(mouseHook, nCode, wParam, lParam);
     }
@@ -130,6 +137,8 @@ public class 透明桌面 : MonoBehaviour {
     }
     
     bool IsMouseOver2DUI() {
+        // TODO: 临时屏蔽鼠标 UI 检测，调试用，恢复时把这行删掉
+        return false;
         EventSystem eventSystem = cachedEventSystem;
         if (eventSystem == null) {
             eventSystem = EventSystem.current;
