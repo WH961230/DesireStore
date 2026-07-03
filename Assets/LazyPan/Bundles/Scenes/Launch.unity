@@ -2507,7 +2507,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ced2b0d61dffb3744b37b7ca59d692ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  freeDailyMinutes: 1
+  freeDailyMinutes: 120
   useRealtimeTimer: 1
   CursorGo: {fileID: 251897725}
 --- !u!114 &1692446245
