@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Runtime.InteropServices;
+using LazyPan;
 using UnityEngine.EventSystems;
 
 public class 透明桌面 : MonoBehaviour {
@@ -137,8 +138,9 @@ public class 透明桌面 : MonoBehaviour {
     }
     
     bool IsMouseOver2DUI() {
-        // TODO: 临时屏蔽鼠标 UI 检测，调试用，恢复时把这行删掉
-        return false;
+        if (!TrialManager.Instance.IsTrialExpired) {
+            return false;
+        }
         EventSystem eventSystem = cachedEventSystem;
         if (eventSystem == null) {
             eventSystem = EventSystem.current;
